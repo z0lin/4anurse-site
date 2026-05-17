@@ -4,7 +4,7 @@ image: "https://m.media-amazon.com/images/I/41oeaaSJhbL.jpg"
 amazonUrl: "https://www.amazon.com/dp/B0CX1S9HRR/?tag=4anurse05-20"
 price: "$11.99"
 priceValue: 11.99
-category: self-care
+category: graduation
 featured: false
 dateAdded: 2025-05-12
 ---
