@@ -5,7 +5,11 @@
       "Bash(npm run *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(sips *)",
+      "Bash(ssh *)",
+      "Bash(scp -i ~/.ssh/4anurse_deploy root@66.42.82.15:/home/mattm0rin/backups/databases/4anurse/2026-05-17/4anurse_1778987707.sql.gz /tmp/4anurse.sql.gz)",
+      "Read(//tmp/**)"
     ]
   }
 }
