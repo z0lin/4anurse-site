@@ -4,7 +4,7 @@ image: "https://m.media-amazon.com/images/I/31CI7M2297L.jpg"
 amazonUrl: "https://www.amazon.com/dp/B091YM1RXS/?tag=4anurse05-20"
 price: "$29.88"
 priceValue: 29.88
-category: jewelry
+category: graduation
 featured: false
 dateAdded: 2025-05-12
 ---

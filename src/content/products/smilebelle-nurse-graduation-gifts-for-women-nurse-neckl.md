@@ -4,7 +4,7 @@ image: "https://m.media-amazon.com/images/I/41VlK08TMjL.jpg"
 amazonUrl: "https://www.amazon.com/dp/B0DLB2T9Z2/?tag=4anurse05-20"
 price: "$23.99"
 priceValue: 23.99
-category: jewelry
+category: graduation
 featured: true
 featuredBadge: "Grad Gift"
 blurb: "A delicate stethoscope pendant that reads as thoughtful, not cheesy."
