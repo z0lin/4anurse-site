@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="About 4aNurse — Curated Nurse Gifts Since 2015"
+  description="4aNurse has been helping families, friends, and colleagues find the perfect gifts for nurses since 2015. Discover our story and why we're passionate about celebrating the nurses in your life."
+>
+  <div class="about-page">
+
+    <section class="about-hero">
+      <h1>The Gift Guide <em>Built</em> for Nurses</h1>
+      <p class="about-lead">Since 2015, 4aNurse has been the go-to destination for anyone searching for thoughtful, meaningful gifts for the nurses they love — from new grad gifts to nurse appreciation week, we've got it covered.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Our Story</h2>
+      <p>It started with a simple problem: we wanted to find a great gift for a nurse, and we had no idea where to start.</p>
+      <p>Back in 2015, if you searched "gifts for nurses" online, you'd find the same generic mugs and generic slogans recycled across a hundred different stores. Nothing felt personal. Nothing felt like it truly honored the work nurses do every single day — the long shifts, the emotional weight, the expertise, the compassion.</p>
+      <p>So we built 4aNurse. A place where every product is hand-picked with nurses in mind. Where gift ideas are organized by occasion, category, and budget so you can find exactly what you're looking for without the noise.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Why Nurse Gifts Matter</h2>
+      <p>Nurses are the backbone of healthcare. They work 12-hour shifts on their feet, advocate for patients when no one else will, and carry the emotional weight of their work home with them every night. A great gift is more than a gesture — it's a way of saying <em>I see you, I appreciate you, and what you do matters.</em></p>
+      <p>Whether you're shopping for a nursing school graduation gift, a Nurses Week thank-you, a holiday present, or just a little pick-me-up for the nurse in your life, the right gift makes a lasting impression.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>What Makes 4aNurse Different</h2>
+      <div class="about-pillars">
+        <div class="pillar">
+          <h3>Curated, Not Collected</h3>
+          <p>We don't list every nurse-themed product on the internet. We curate — reviewing hundreds of items to surface the ones actually worth buying. Our editors consider quality, reviews, price, and whether a nurse would genuinely love it.</p>
+        </div>
+        <div class="pillar">
+          <h3>Built Around Real Nurses</h3>
+          <p>Our recommendations are informed by nurses themselves — what they actually use, wear, carry, and love. From the best stethoscopes for new grads to self-care gifts for the burned-out ICU nurse, we think about the real person behind the profession.</p>
+        </div>
+        <div class="pillar">
+          <h3>Every Occasion Covered</h3>
+          <p>Nursing school graduation. Nurses Week. Christmas. A job well done. We've organized our gift guides so you can find the right gift for the right moment — fast.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Popular Gifts for Nurses We Love</h2>
+      <p>Over the years, a few categories have risen to the top as the most loved and most gifted:</p>
+      <ul class="about-list">
+        <li><strong>Nurse graduation gifts</strong> — Stethoscopes, badge reels, scrubs, and personalized keepsakes for the new RN in your life</li>
+        <li><strong>Self-care gifts for nurses</strong> — Compression socks, hand creams, essential oils, and anything that helps a tired nurse recharge</li>
+        <li><strong>Funny nurse gifts</strong> — Because humor is a coping mechanism, and nurses have a great sense of it</li>
+        <li><strong>Nurse appreciation gifts</strong> — For Nurses Week, hospital volunteer recognition, or just because</li>
+        <li><strong>Personalized nurse gifts</strong> — Custom name badges, monogrammed tote bags, and engraved jewelry that feel truly special</li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2>A Note on Our Links</h2>
+      <p>4aNurse is an Amazon Associate. When you click a product link and make a purchase, we earn a small commission at no extra cost to you. This is how we keep the lights on and the gift guides updated. We only recommend products we'd genuinely give to a nurse we care about.</p>
+    </section>
+
+    <section class="about-cta">
+      <h2>Ready to Find the Perfect Nurse Gift?</h2>
+      <p>Browse our full collection of curated nurse gifts — sorted by category, occasion, and price so you find exactly what you need.</p>
+      <a href="/" class="btn-primary">Browse Nurse Gifts</a>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+.about-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+.about-hero {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.about-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+}
+.about-hero em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+.about-lead {
+  font-size: 1.15rem;
+  color: var(--color-muted);
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+.about-section {
+  margin-bottom: 3rem;
+}
+.about-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+.about-section p {
+  color: var(--color-text);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.about-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.pillar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.pillar h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent);
+}
+.pillar p {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+.about-list {
+  padding-left: 1.25rem;
+  line-height: 2;
+  color: var(--color-text);
+}
+.about-list li {
+  margin-bottom: 0.25rem;
+}
+.about-cta {
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  margin-top: 1rem;
+}
+.about-cta h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.75rem;
+}
+.about-cta p {
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+.btn-primary {
+  display: inline-block;
+  background: var(--color-accent);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover {
+  opacity: 0.88;
+}
+</style>
