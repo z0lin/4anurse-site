@@ -1,0 +1,3 @@
+[build]
+  command = "echo 'Hosting on CloudPanel — Netlify is used for Identity/CMS auth only'"
+  publish = "dist"
