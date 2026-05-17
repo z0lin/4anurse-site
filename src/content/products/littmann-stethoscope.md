@@ -8,5 +8,5 @@ category: "graduation"
 featured: true
 featuredBadge: "Splurge"
 blurb: "The workhorse standard. They'll have it for their entire career."
-dateAdded: 2026-05-13
+dateAdded: 2026-05-17
 ---
