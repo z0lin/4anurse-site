@@ -7,7 +7,7 @@ backend:
 media_folder: "public/images"
 public_folder: "/images"
 
-site_url: https://4anurse.com
+site_url: https://moonlit-croissant-d11744.netlify.app
 display_url: https://4anurse.com
 
 collections:

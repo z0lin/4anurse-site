@@ -44,6 +44,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   <!-- Privacy-friendly analytics: Plausible (keep your existing one) -->
   <script defer data-domain="4anurse.com" src="https://plausible.io/js/script.js"></script>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script is:inline>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", function(user) {
+        if (!user) {
+          window.netlifyIdentity.on("login", function() {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+    }
+  </script>
 </head>
 <body>
   <header class="site-header">
