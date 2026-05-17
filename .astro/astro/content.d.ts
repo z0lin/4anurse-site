@@ -2383,9 +2383,58 @@ declare module 'astro:content' {
 } & { render(): Render[".md"] };
 };
 "categories": {
+"accessories.md": {
+	id: "accessories.md";
+  slug: "accessories";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"books.md": {
+	id: "books.md";
+  slug: "books";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"drinkware.md": {
+	id: "drinkware.md";
+  slug: "drinkware";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
 "graduation.md": {
 	id: "graduation.md";
   slug: "graduation";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"home.md": {
+	id: "home.md";
+  slug: "home";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"humor.md": {
+	id: "humor.md";
+  slug: "humor";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"jewelry.md": {
+	id: "jewelry.md";
+  slug: "jewelry";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
+"self-care.md": {
+	id: "self-care.md";
+  slug: "self-care";
   body: string;
   collection: "categories";
   data: InferEntrySchema<"categories">
