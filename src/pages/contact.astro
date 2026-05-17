@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Submit a Gift Idea — 4aNurse"
+  description="Know a great gift for nurses? We'd love to hear about it. Submit your nurse gift idea to the 4aNurse team."
+>
+  <div class="submit-page">
+
+    <div class="submit-hero">
+      <h1>Submit a Gift Idea</h1>
+      <p>Found something nurses actually love? Share it with us — our favorites get added to the site and featured in our gift guides.</p>
+    </div>
+
+    <div class="submit-layout">
+      <form
+        class="submit-form"
+        action="https://formsubmit.co/contact@4anurse.com"
+        method="POST"
+      >
+        <!-- Formsubmit config -->
+        <input type="hidden" name="_subject" value="New Gift Idea Submission — 4aNurse" />
+        <input type="hidden" name="_next" value="https://4anurse.com/thanks" />
+        <input type="hidden" name="_captcha" value="false" />
+        <!-- Honeypot spam trap -->
+        <input type="text" name="_honey" style="display:none" />
+
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="name" placeholder="Jane Smith" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Your Email <span class="label-hint">(so we can follow up)</span></label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="product">Gift Idea / Product Name</label>
+          <input type="text" id="product" name="product" placeholder="e.g. Littmann Stethoscope, Compression Socks..." required />
+        </div>
+
+        <div class="form-group">
+          <label for="amazon_url">Amazon Link <span class="label-hint">(optional)</span></label>
+          <input type="url" id="amazon_url" name="amazon_url" placeholder="https://www.amazon.com/dp/..." />
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category">
+            <option value="">— Select a category —</option>
+            <option>Graduation</option>
+            <option>Apparel</option>
+            <option>Accessories</option>
+            <option>Drinkware</option>
+            <option>Jewelry</option>
+            <option>Self-Care</option>
+            <option>Home</option>
+            <option>Humor</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reason">Why do nurses love it? <span class="label-hint">(optional)</span></label>
+          <textarea id="reason" name="reason" rows="4" placeholder="Tell us what makes this a great nurse gift..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Send It In</button>
+      </form>
+
+      <aside class="submit-sidebar">
+        <div class="sidebar-card">
+          <h3>What we look for</h3>
+          <ul>
+            <li>Practical for everyday nursing life</li>
+            <li>Thoughtful and nurse-specific</li>
+            <li>Great reviews on Amazon</li>
+            <li>Works for any specialty</li>
+          </ul>
+        </div>
+        <div class="sidebar-card">
+          <h3>Good to know</h3>
+          <p>We review every submission personally. If we add your suggestion to the site, we'll let you know. We don't add every product — only the ones we'd genuinely recommend.</p>
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+.submit-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+.submit-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.submit-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  margin-bottom: 0.75rem;
+}
+.submit-hero p {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.submit-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 3rem;
+  align-items: start;
+}
+.submit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+.label-hint {
+  font-weight: 400;
+  color: var(--color-muted);
+}
+input[type="text"],
+input[type="email"],
+input[type="url"],
+select,
+textarea {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background: white;
+  color: var(--color-text);
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+textarea {
+  resize: vertical;
+}
+.submit-btn {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  align-self: flex-start;
+}
+.submit-btn:hover {
+  opacity: 0.88;
+}
+.sidebar-card {
+  background: var(--color-surface, #fdfaf7);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.sidebar-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-accent);
+}
+.sidebar-card ul {
+  padding-left: 1.1rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 2;
+}
+.sidebar-card p {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+@media (max-width: 700px) {
+  .submit-layout {
+    grid-template-columns: 1fr;
+  }
+  .submit-sidebar {
+    display: none;
+  }
+}
+</style>
