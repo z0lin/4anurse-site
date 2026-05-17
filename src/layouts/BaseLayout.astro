@@ -1,0 +1,89 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title,
+  description = 'Thoughtful, hand-picked gift ideas for the nurses in your life. Curated by nurses, for nurses.',
+  image = '/images/og-default.jpg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={new URL(image, Astro.site)} />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
+
+  <!-- Privacy-friendly analytics: Plausible (keep your existing one) -->
+  <script defer data-domain="4anurse.com" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">4a<span>Nurse</span></a>
+      <nav class="nav">
+        <a href="/">Gifts</a>
+        <a href="/blog">Blog</a>
+        <a href="/about">About</a>
+        <a href="/contact">Submit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <h4>4aNurse</h4>
+        <p style="font-size:0.9rem;">The perfect gift, prescribed for a nurse.</p>
+      </div>
+      <div>
+        <h4>Browse</h4>
+        <a href="/">All Gifts</a>
+        <a href="/blog">Blog</a>
+        <a href="/about">Our Story</a>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <a href="/contact">Submit a Gift</a>
+        <a href="mailto:contact@4anurse.com">contact@4anurse.com</a>
+      </div>
+    </div>
+    <div class="disclosure">
+      As an Amazon Associate, 4aNurse.com earns from qualifying purchases.<br />
+      Copyright © {new Date().getFullYear()} · 4aNurse.com · A brand of Easy-RN, LLC
+    </div>
+  </footer>
+</body>
+</html>

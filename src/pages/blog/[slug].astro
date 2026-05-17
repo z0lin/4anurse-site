@@ -1,0 +1,93 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+// Pick up to 3 related posts (same category, fallback to recent)
+const allPosts = (await getCollection('blog')).filter(
+  (p) => !p.data.draft && p.slug !== post.slug
+);
+let related = post.data.category
+  ? allPosts.filter((p) => p.data.category === post.data.category)
+  : [];
+if (related.length < 3) {
+  related = [
+    ...related,
+    ...allPosts.filter((p) => !related.includes(p)),
+  ];
+}
+related = related
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+function fmtDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<BaseLayout
+  title={`${post.data.title} – 4aNurse`}
+  description={post.data.description}
+  image={post.data.heroImage}
+>
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>›</span><a href="/blog">Blog</a><span>›</span>{post.data.title}
+  </nav>
+
+  <section class="category-hero" style="text-align: left;">
+    {post.data.category && <span class="tag">{post.data.category}</span>}
+    <h1 style="text-align: left;">{post.data.title}</h1>
+    <p style="text-align: left; margin: 0 0 1rem 0;">{post.data.description}</p>
+    <div class="post-meta" style="border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem;">
+      <span>{fmtDate(post.data.pubDate)}</span>
+      {post.data.readTime && <span class="read-time">{post.data.readTime}</span>}
+    </div>
+  </section>
+
+  {post.data.heroImage && (
+    <div style="max-width: 960px; margin: 1rem auto 2rem; padding: 0 1.5rem;">
+      <img
+        src={post.data.heroImage}
+        alt={post.data.title}
+        style="border-radius: var(--radius); aspect-ratio: 16 / 9; object-fit: cover; width: 100%;"
+      />
+    </div>
+  )}
+
+  <article class="blog-post">
+    <Content />
+  </article>
+
+  {related.length > 0 && (
+    <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Keep reading</h2>
+      <div class="posts-grid">
+        {related.map((r) => (
+          <a class="post-card" href={`/blog/${r.slug}`}>
+            <div class="post-card-image">
+              {r.data.heroImage && <img src={r.data.heroImage} alt={r.data.title} loading="lazy" />}
+            </div>
+            {r.data.category && <span class="tag">{r.data.category}</span>}
+            <h3>{r.data.title}</h3>
+            <div class="post-meta">
+              <span>{fmtDate(r.data.pubDate)}</span>
+              {r.data.readTime && <span class="read-time">{r.data.readTime}</span>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>

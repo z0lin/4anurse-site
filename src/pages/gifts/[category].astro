@@ -1,0 +1,104 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const categoryPages = await getCollection('categories');
+  return categoryPages.map((cat) => ({
+    params: { category: cat.slug },
+    props: { cat },
+  }));
+}
+
+const { cat } = Astro.props;
+const { Content } = await cat.render();
+
+const allProducts = await getCollection('products');
+const products = allProducts
+  .filter((p) => p.data.category === cat.data.categoryId)
+  .sort((a, b) => (a.data.priceValue ?? 0) - (b.data.priceValue ?? 0));
+---
+
+<BaseLayout
+  title={`${cat.data.title} – 4aNurse`}
+  description={cat.data.description}
+>
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>›</span><a href="/">Gifts</a><span>›</span>{cat.data.label}
+  </nav>
+
+  <section class="category-hero">
+    <span class="tag">Category</span>
+    <h1>{cat.data.title}</h1>
+    <p>{cat.data.description}</p>
+  </section>
+
+  <section class="intro-content">
+    <Content />
+  </section>
+
+  <div class="filters" style="padding-top: 0.5rem;">
+    <button class="price-pill active" data-range="all">All Prices</button>
+    <button class="price-pill" data-range="under25">Under $25</button>
+    <button class="price-pill" data-range="25to50">$25 – $50</button>
+    <button class="price-pill" data-range="50to100">$50 – $100</button>
+    <button class="price-pill" data-range="over100">$100+</button>
+  </div>
+
+  <div class="product-grid">
+    {products.map((product) => (
+      <article
+        class="product-card"
+        data-price={product.data.priceValue ?? 0}
+      >
+        <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+          <div class="product-image">
+            <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" />
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">{product.data.title}</h3>
+            <div class="product-meta">
+              {product.data.price && <span class="product-price">{product.data.price}</span>}
+              <span class="product-ad-label">#ad</span>
+            </div>
+            <span class="product-cta">View on Amazon</span>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  {cat.data.faq && cat.data.faq.length > 0 && (
+    <section class="faq">
+      <h2>Frequently Asked Questions</h2>
+      {cat.data.faq.map((item, i) => (
+        <details class="faq-item" open={i === 0}>
+          <summary>{item.q}</summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </section>
+  )}
+
+  <script>
+    const pills = document.querySelectorAll<HTMLButtonElement>('.price-pill');
+    const cards = document.querySelectorAll<HTMLElement>('.product-card');
+
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const range = pill.dataset.range;
+        pills.forEach((p) => p.classList.remove('active'));
+        pill.classList.add('active');
+        cards.forEach((card) => {
+          const price = parseFloat(card.dataset.price || '0');
+          let show = true;
+          if (range === 'under25') show = price < 25;
+          else if (range === '25to50') show = price >= 25 && price < 50;
+          else if (range === '50to100') show = price >= 50 && price < 100;
+          else if (range === 'over100') show = price >= 100;
+          card.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</BaseLayout>

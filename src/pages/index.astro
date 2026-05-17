@@ -1,0 +1,132 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const allProducts = await getCollection('products');
+const featured = allProducts
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf())
+  .slice(0, 4);
+
+const sorted = allProducts.sort(
+  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
+);
+
+const categories = [
+  { id: 'all', label: 'All', link: null },
+  { id: 'graduation', label: 'Graduation', link: '/gifts/graduation' },
+  { id: 'apparel', label: 'Apparel', link: null },
+  { id: 'accessories', label: 'Accessories', link: null },
+  { id: 'drinkware', label: 'Drinkware', link: null },
+  { id: 'jewelry', label: 'Jewelry', link: null },
+  { id: 'books', label: 'Books', link: null },
+  { id: 'home', label: 'Home', link: null },
+  { id: 'humor', label: 'Humor', link: null },
+  { id: 'self-care', label: 'Self-Care', link: null },
+];
+---
+
+<BaseLayout title="4aNurse – Thoughtful Gift Ideas for Nurses">
+  <section class="hero">
+    <h1>The perfect gift, <em>prescribed</em> for a nurse.</h1>
+    <p>Hand-picked ideas for graduations, milestones, and "just because" — curated by nurses, for nurses.</p>
+  </section>
+
+  {featured.length > 0 && (
+    <section class="featured-section">
+      <div class="featured-header">
+        <h2 class="featured-title">Editor's Picks</h2>
+        <span class="featured-subtitle">Our favorites this month</span>
+      </div>
+      <div class="featured-grid">
+        {featured.map((product) => (
+          <a class="featured-card" href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+            {product.data.featuredBadge && (
+              <span class="featured-badge">{product.data.featuredBadge}</span>
+            )}
+            <div class="product-image">
+              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" />
+            </div>
+            <div class="product-info">
+              <h3 class="product-title">{product.data.title}</h3>
+              <div class="product-meta">
+                {product.data.price && <span class="product-price">{product.data.price}</span>}
+                <span class="product-ad-label">#ad</span>
+              </div>
+              <span class="product-cta">View on Amazon</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <div class="section-divider"><hr /></div>
+
+  <div class="section-header">
+    <h2>All Gifts</h2>
+    <p>Tap a category to browse, or scroll through everything below.</p>
+  </div>
+
+  <div class="filters" id="filters">
+    {categories.map((cat) => (
+      cat.link ? (
+        <a class="filter-btn category-link" href={cat.link}>{cat.label}</a>
+      ) : (
+        <button
+          class={`filter-btn ${cat.id === 'all' ? 'active' : ''}`}
+          data-category={cat.id}
+        >
+          {cat.label}
+        </button>
+      )
+    ))}
+  </div>
+
+  <div class="product-grid" id="product-grid">
+    {sorted.map((product) => (
+      <article class="product-card" data-category={product.data.category}>
+        <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+          <div class="product-image">
+            <img
+              src={product.data.image}
+              alt={product.data.title}
+              loading="lazy"
+              decoding="async"
+              width="300"
+              height="300"
+            />
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">{product.data.title}</h3>
+            <div class="product-meta">
+              {product.data.price && <span class="product-price">{product.data.price}</span>}
+              <span class="product-ad-label">#ad</span>
+            </div>
+            <span class="product-cta">View on Amazon</span>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn[data-category]');
+    const cards = document.querySelectorAll<HTMLElement>('.product-card');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.category;
+        buttons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        cards.forEach((card) => {
+          if (cat === 'all' || card.dataset.category === cat) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</BaseLayout>

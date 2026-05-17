@@ -1,0 +1,83 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featuredPost = posts.find((p) => p.data.featured) ?? posts[0];
+const recentPosts = posts.filter((p) => p.slug !== featuredPost?.slug);
+
+function fmtDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<BaseLayout
+  title="Blog – 4aNurse"
+  description="Gift guides, nursing stories, and ideas for showing appreciation."
+>
+  <section class="blog-hero">
+    <h1>The Blog</h1>
+    <p>Gift guides, nursing stories, and ideas for the nurses we love.</p>
+  </section>
+
+  {featuredPost && (
+    <section class="featured-post">
+      <a class="featured-post-card" href={`/blog/${featuredPost.slug}`}>
+        <div class="featured-post-image">
+          {featuredPost.data.heroImage && (
+            <img src={featuredPost.data.heroImage} alt={featuredPost.data.title} loading="eager" />
+          )}
+        </div>
+        <div class="featured-post-content">
+          <span class="tag">Featured{featuredPost.data.category ? ` · ${featuredPost.data.category}` : ''}</span>
+          <h2>{featuredPost.data.title}</h2>
+          <p>{featuredPost.data.description}</p>
+          <div class="post-meta">
+            <span>{fmtDate(featuredPost.data.pubDate)}</span>
+            {featuredPost.data.readTime && <span class="read-time">{featuredPost.data.readTime}</span>}
+          </div>
+        </div>
+      </a>
+    </section>
+  )}
+
+  {recentPosts.length > 0 && (
+    <section class="posts-section">
+      <h2>Recent Posts</h2>
+      <div class="posts-grid">
+        {recentPosts.map((post) => (
+          <a class="post-card" href={`/blog/${post.slug}`}>
+            <div class="post-card-image">
+              {post.data.heroImage && (
+                <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
+              )}
+            </div>
+            {post.data.category && <span class="tag">{post.data.category}</span>}
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <div class="post-meta">
+              <span>{fmtDate(post.data.pubDate)}</span>
+              {post.data.readTime && <span class="read-time">{post.data.readTime}</span>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="newsletter">
+    <h2>One thoughtful gift idea a week.</h2>
+    <p>Curated picks delivered to your inbox. No spam, unsubscribe anytime.</p>
+    <!--
+      Replace this form's action with your Buttondown/ConvertKit/Mailchimp endpoint.
+      Buttondown example: action="https://buttondown.email/api/emails/embed-subscribe/YOUR_USERNAME" method="post"
+    -->
+    <form class="newsletter-form" action="#" method="post">
+      <input type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+  </section>
+</BaseLayout>

@@ -1,0 +1,98 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# local_backend: true  # uncomment for local CMS testing
+
+media_folder: "public/images"
+public_folder: "/images"
+
+site_url: https://4anurse.com
+display_url: https://4anurse.com
+
+collections:
+  - name: "products"
+    label: "Products"
+    label_singular: "Product"
+    folder: "src/content/products"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}} — {{price}}"
+    sortable_fields: ['dateAdded', 'title', 'priceValue', 'category']
+    view_filters:
+      - label: "Featured"
+        field: featured
+        pattern: true
+      - label: "Graduation"
+        field: category
+        pattern: graduation
+      - label: "Under $25"
+        field: priceValue
+        pattern: "^(\\d|1\\d|2[0-4])(\\.\\d+)?$"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Product Image", name: "image", widget: "image" }
+      - { label: "Amazon URL (with your affiliate tag)", name: "amazonUrl", widget: "string", pattern: ['^https://(www\\.)?amazon\\.', 'Must be an Amazon URL'] }
+      - { label: "Price (display, e.g. $24.99)", name: "price", widget: "string", required: false }
+      - { label: "Price (number only, for filtering — e.g. 24.99)", name: "priceValue", widget: "number", required: false, value_type: "float" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Graduation", value: "graduation" }
+          - { label: "Apparel", value: "apparel" }
+          - { label: "Accessories", value: "accessories" }
+          - { label: "Drinkware", value: "drinkware" }
+          - { label: "Jewelry", value: "jewelry" }
+          - { label: "Books", value: "books" }
+          - { label: "Home", value: "home" }
+          - { label: "Humor", value: "humor" }
+          - { label: "Self-Care", value: "self-care" }
+          - { label: "Other", value: "other" }
+        default: "other"
+      - { label: "Featured on homepage", name: "featured", widget: "boolean", default: false }
+      - label: "Featured Badge (only shown if featured)"
+        name: "featuredBadge"
+        widget: "select"
+        required: false
+        options:
+          - "Top Pick"
+          - "Best Value"
+          - "Grad Gift"
+          - "Splurge"
+          - "Editor's Pick"
+          - "New"
+      - { label: "Short blurb (why we love it)", name: "blurb", widget: "text", required: false }
+      - { label: "Date Added", name: "dateAdded", widget: "datetime" }
+      - { label: "Notes / Description (optional)", name: "body", widget: "markdown", required: false }
+
+  - name: "blog"
+    label: "Blog Posts"
+    label_singular: "Post"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description (for SEO + previews)", name: "description", widget: "text" }
+      - { label: "Publish Date", name: "pubDate", widget: "datetime" }
+      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false }
+      - { label: "Hero Image", name: "heroImage", widget: "image", required: false }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        required: false
+        options:
+          - "Gift Guide"
+          - "Buying Guide"
+          - "Self-Care"
+          - "Graduation"
+          - "Nurses Week"
+          - "Holiday"
+          - "Personalization"
+          - "Story"
+      - { label: "Read time (e.g. 8 min read)", name: "readTime", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Featured (big card on blog index)", name: "featured", widget: "boolean", default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
