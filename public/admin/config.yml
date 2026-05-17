@@ -1,5 +1,6 @@
 backend:
   name: git-gateway
+  base_url: https://moonlit-croissant-d11744.netlify.app
   branch: main
 
 # local_backend: true  # uncomment for local CMS testing
