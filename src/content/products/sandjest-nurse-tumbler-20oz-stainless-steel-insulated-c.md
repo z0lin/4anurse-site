@@ -5,6 +5,8 @@ amazonUrl: "https://www.amazon.com/dp/B0DCZJ2GL3/?tag=4anurse05-20"
 price: "$18.95"
 priceValue: 18.95
 category: drinkware
-featured: false
+featured: true
+featuredBadge: "Best Value"
+blurb: "Keeps coffee hot through an entire 12-hour shift. The nutritional facts label is a nice touch."
 dateAdded: 2025-05-08
 ---

@@ -5,6 +5,8 @@ amazonUrl: "https://www.amazon.com/dp/B0CSPNSCLH/?tag=4anurse05-20"
 price: "$44.99"
 priceValue: 44.99
 category: humor
-featured: false
+featured: true
+featuredBadge: "Editor's Pick"
+blurb: "Game night just got a lot more McDreamy. A crowd-pleaser for any Grey's fan."
 dateAdded: 2025-05-16
 ---
