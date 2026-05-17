@@ -1,3 +1,6 @@
 [build]
-  command = "mkdir -p dist && echo 'Hosting on CloudPanel — Netlify Identity only' > dist/index.html"
+  command = "npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
