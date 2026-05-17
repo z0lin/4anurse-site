@@ -48,6 +48,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script is:inline>
     if (window.netlifyIdentity) {
+      window.netlifyIdentity.init({
+        APIUrl: "https://moonlit-croissant-d11744.netlify.app/.netlify/identity"
+      });
       window.netlifyIdentity.on("init", function(user) {
         if (!user) {
           window.netlifyIdentity.on("login", function() {
