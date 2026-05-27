@@ -2390,6 +2390,13 @@ declare module 'astro:content' {
   collection: "categories";
   data: InferEntrySchema<"categories">
 } & { render(): Render[".md"] };
+"apparel.md": {
+	id: "apparel.md";
+  slug: "apparel";
+  body: string;
+  collection: "categories";
+  data: InferEntrySchema<"categories">
+} & { render(): Render[".md"] };
 "books.md": {
 	id: "books.md";
   slug: "books";
