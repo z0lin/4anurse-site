@@ -14,6 +14,14 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: '4aNurse',
+  url: Astro.site?.toString() ?? 'https://4anurse.com',
+  description: 'Thoughtful, hand-picked gift ideas for the nurses in your life. Curated by nurses, for nurses.',
+};
 ---
 
 <!DOCTYPE html>
@@ -33,10 +41,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={new URL(image, Astro.site)} />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="4aNurse" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={new URL(image, Astro.site)} />
+
+  <link rel="alternate" type="application/rss+xml" title="4aNurse Blog" href="/rss.xml" />
+
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
