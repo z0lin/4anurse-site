@@ -26,5 +26,5 @@ jobs:
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: root
           SOURCE: "dist/"
-          TARGET: "/home/mattm0rin/htdocs/4anurse.com/"
+          TARGET: "/home/fouranurse/htdocs/4anurse.com/"
           ARGS: "-rltgoDzvO --delete"
