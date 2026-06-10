@@ -3,7 +3,8 @@ import { getCollection } from 'astro:content';
 const SITE = 'https://4anurse.com';
 
 function url(path, lastmod) {
-  return `<url><loc>${SITE}${path}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`;
+  const loc = path.endsWith('/') ? path : `${path}/`;
+  return `<url><loc>${SITE}${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`;
 }
 
 export async function GET() {
