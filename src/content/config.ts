@@ -59,4 +59,20 @@ const categories = defineCollection({
   }),
 });
 
-export const collections = { products, blog, categories };
+// Evergreen occasion/specialty hub pages (pillar pages at root, e.g. /nurses-week-gifts/)
+const hubs = defineCollection({
+  type: 'content', // markdown body = page intro
+  schema: z.object({
+    title: z.string(), // SEO <title>
+    h1: z.string(),
+    description: z.string(),
+    breadcrumbLabel: z.string(), // short label, e.g. "Nurses Week Gifts"
+    matchKeywords: z.array(z.string()), // match related blog posts by slug
+    productCategories: z.array(z.string()).default([]), // pull featured products from these
+    faq: z
+      .array(z.object({ q: z.string(), a: z.string() }))
+      .optional(),
+  }),
+});
+
+export const collections = { products, blog, categories, hubs };

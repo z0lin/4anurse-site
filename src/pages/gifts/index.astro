@@ -6,6 +6,10 @@ const categories = (await getCollection('categories')).sort((a, b) =>
   a.data.label.localeCompare(b.data.label)
 );
 
+const hubs = (await getCollection('hubs')).sort((a, b) =>
+  a.data.breadcrumbLabel.localeCompare(b.data.breadcrumbLabel)
+);
+
 // Popular guides: featured posts first, then most recent, capped at 8
 const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
 const popular = [
@@ -70,6 +74,17 @@ const itemListSchema = {
       ))}
     </div>
   </section>
+
+  {hubs.length > 0 && (
+    <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Shop by occasion &amp; specialty</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        {hubs.map((h) => (
+          <a class="tag" href={`/${h.slug}/`} style="text-decoration: none;">{h.data.breadcrumbLabel}</a>
+        ))}
+      </div>
+    </section>
+  )}
 
   {popular.length > 0 && (
     <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">

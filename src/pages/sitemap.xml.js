@@ -11,6 +11,7 @@ export async function GET() {
   const products = await getCollection('products');
   const posts = await getCollection('blog', (p) => !p.data.draft);
   const categories = await getCollection('categories');
+  const hubs = await getCollection('hubs');
 
   const urls = [
     url('/', new Date().toISOString().slice(0, 10)),
@@ -21,6 +22,7 @@ export async function GET() {
     url('/disclosure'),
     url('/privacy'),
     url('/terms'),
+    ...hubs.map((h) => url(`/${h.slug}`)),
     ...categories.map((c) => url(`/gifts/${c.slug}`)),
     ...posts.map((p) => url(`/blog/${p.slug}`, p.data.pubDate?.toISOString().slice(0, 10))),
   ];
