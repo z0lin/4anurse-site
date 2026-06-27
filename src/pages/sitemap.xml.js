@@ -14,9 +14,13 @@ export async function GET() {
 
   const urls = [
     url('/', new Date().toISOString().slice(0, 10)),
+    url('/gifts'),
     url('/blog'),
     url('/about'),
     url('/contact'),
+    url('/disclosure'),
+    url('/privacy'),
+    url('/terms'),
     ...categories.map((c) => url(`/gifts/${c.slug}`)),
     ...posts.map((p) => url(`/blog/${p.slug}`, p.data.pubDate?.toISOString().slice(0, 10))),
   ];

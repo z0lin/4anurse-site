@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const categories = (await getCollection('categories')).sort((a, b) =>
+  a.data.label.localeCompare(b.data.label)
+);
+
+// Popular guides: featured posts first, then most recent, capped at 8
+const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+const popular = [
+  ...posts.filter((p) => p.data.featured),
+  ...posts.filter((p) => !p.data.featured),
+]
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 8);
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.toString() },
+    { '@type': 'ListItem', position: 2, name: 'Gifts', item: canonicalURL.toString() },
+  ],
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Nurse Gift Categories',
+  itemListElement: categories.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.data.label,
+    url: new URL(`/gifts/${c.slug}/`, Astro.site).toString(),
+  })),
+};
+---
+
+<BaseLayout
+  title="Gifts for Nurses – Hand-Picked Ideas by Category, Occasion & Budget"
+  description="The best gifts for nurses, curated by category, occasion, and budget — from graduation and Nurses Week to self-care, jewelry, drinkware, and funny picks nurses actually love."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)}></script>
+
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>›</span>Gifts
+  </nav>
+
+  <section class="category-hero">
+    <span class="tag">Gift Guide</span>
+    <h1>Gifts for Nurses</h1>
+    <p>Finding the right gift for a nurse shouldn't be hard. We've hand-picked ideas across every category, occasion, and budget — whether you're shopping for a new grad, a Nurses Week thank-you, or the ICU nurse who has everything. Start with a category below.</p>
+  </section>
+
+  <section style="max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 0;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Browse by category</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem;">
+      {categories.map((c) => (
+        <a
+          href={`/gifts/${c.slug}/`}
+          style="display: block; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: var(--radius); text-decoration: none; color: inherit;"
+        >
+          <h3 style="margin: 0 0 0.5rem; font-size: 1.15rem;">{c.data.label}</h3>
+          <p style="margin: 0; font-size: 0.95rem; opacity: 0.85;">{c.data.description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {popular.length > 0 && (
+    <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Popular nurse gift guides</h2>
+      <div class="posts-grid">
+        {popular.map((r) => (
+          <a class="post-card" href={`/blog/${r.slug}/`}>
+            <div class="post-card-image">
+              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" />
+            </div>
+            {r.data.category && <span class="tag">{r.data.category}</span>}
+            <h3>{r.data.title}</h3>
+          </a>
+        ))}
+      </div>
+      <p style="margin-top: 1.5rem;"><a href="/blog/">See all gift guides →</a></p>
+    </section>
+  )}
+</BaseLayout>

@@ -15,6 +15,11 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 
+// Gift category pages to link to from every post (content -> commercial internal linking)
+const giftCategories = (await getCollection('categories')).sort((a, b) =>
+  a.data.label.localeCompare(b.data.label)
+);
+
 // Pick up to 3 related posts (same category, fallback to recent)
 const allPosts = (await getCollection('blog')).filter(
   (p) => !p.data.draft && p.slug !== post.slug
@@ -74,7 +79,7 @@ const articleSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
 
   <nav class="breadcrumb">
-    <a href="/">Home</a><span>›</span><a href="/blog">Blog</a><span>›</span>{post.data.title}
+    <a href="/">Home</a><span>›</span><a href="/blog/">Blog</a><span>›</span>{post.data.title}
   </nav>
 
   <section class="category-hero" style="text-align: left;">
@@ -101,12 +106,23 @@ const articleSchema = {
     <Content />
   </article>
 
+  {giftCategories.length > 0 && (
+    <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Shop nurse gifts by category</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        {giftCategories.map((c) => (
+          <a class="tag" href={`/gifts/${c.slug}/`} style="text-decoration: none;">{c.data.label}</a>
+        ))}
+      </div>
+    </section>
+  )}
+
   {related.length > 0 && (
     <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
       <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Keep reading</h2>
       <div class="posts-grid">
         {related.map((r) => (
-          <a class="post-card" href={`/blog/${r.slug}`}>
+          <a class="post-card" href={`/blog/${r.slug}/`}>
             <div class="post-card-image">
               <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" />
             </div>
