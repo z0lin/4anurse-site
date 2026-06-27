@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const giftCategories = (await getCollection('categories')).sort((a, b) =>
+  a.data.label.localeCompare(b.data.label)
+);
+
+const products = (await getCollection('products'))
+  .filter((p) => (p.data.priceValue ?? 0) > 0 && (p.data.priceValue ?? 0) < 25)
+  .sort((a, b) => (b.data.priceValue ?? 0) - (a.data.priceValue ?? 0))
+  .slice(0, 36);
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.toString() },
+    { '@type': 'ListItem', position: 2, name: 'Gifts', item: `${Astro.site}gifts/` },
+    { '@type': 'ListItem', position: 3, name: 'Under $25', item: canonicalURL.toString() },
+  ],
+};
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Nurse Gifts Under $25',
+  itemListElement: products.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.data.title, url: p.data.amazonUrl })),
+};
+const faq = [
+  { q: 'What is a good cheap gift for a nurse?', a: "Under $25, the most-appreciated nurse gifts are practical items used every shift: a quality badge reel, a nice pen set, an insulated tumbler, lip balm and hand cream for dry hospital air, and fun socks. These feel thoughtful without breaking the budget." },
+  { q: 'What are good small gifts for nurses in bulk?', a: 'For Nurses Week or a whole unit, buy one useful item in bulk — badge reels, tumblers, or pens all work well under $25 each and feel more personal than a generic gift card, especially paired with a handwritten note.' },
+];
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+---
+
+<BaseLayout
+  title="Nurse Gifts Under $25 – Affordable, Thoughtful Ideas Nurses Love"
+  description="The best nurse gifts under $25 — practical, thoughtful, budget-friendly picks for Nurses Week, coworkers, and stocking stuffers that nurses actually use every shift."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+
+  <nav class="breadcrumb"><a href="/">Home</a><span>›</span><a href="/gifts/">Gifts</a><span>›</span>Under $25</nav>
+
+  <section class="category-hero">
+    <span class="tag">By Budget</span>
+    <h1>Nurse Gifts Under $25</h1>
+    <p>Thoughtful doesn't have to be expensive. These budget-friendly nurse gifts are practical, well-reviewed, and genuinely useful on a 12-hour shift — perfect for Nurses Week, coworkers, Secret Santa, and stocking stuffers.</p>
+  </section>
+
+  <div class="product-grid">
+    {products.map((product) => (
+      <article class="product-card">
+        <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+          <div class="product-image"><img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" /></div>
+          <div class="product-info">
+            <h3 class="product-title">{product.data.title}</h3>
+            <div class="product-meta">{product.data.price && <span class="product-price">{product.data.price}</span>}</div>
+            <span class="product-cta">View on Amazon</span>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    {faq.map((item, i) => (<details class="faq-item" open={i === 0}><summary>{item.q}</summary><p>{item.a}</p></details>))}
+  </section>
+
+  <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Shop nurse gifts by category</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      {giftCategories.map((c) => (<a class="tag" href={`/gifts/${c.slug}/`} style="text-decoration: none;">{c.data.label}</a>))}
+    </div>
+  </section>
+</BaseLayout>

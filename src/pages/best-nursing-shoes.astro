@@ -1,0 +1,32 @@
+---
+import BestReview from '../components/BestReview.astro';
+const A = (k: string) => `https://www.amazon.com/s?k=${encodeURIComponent(k)}&tag=4anurse05-20`;
+
+const picks = [
+  { name: 'HOKA Bondi 8', badge: 'Best Overall', price: '~$165', blurb: "The cult favorite among nurses for a reason: maximalist cushioning that takes the pounding out of 12-hour shifts on hard hospital floors. Roomy toe box, great shock absorption, and a wipeable upper. If your feet ache by hour eight, start here.", url: A('HOKA Bondi 8 womens') },
+  { name: 'Dansko Professional Clog', badge: 'Best Clog', price: '~$135', blurb: "The classic nursing clog — supportive rocker sole, easy slip-on/off, and built like a tank (many nurses get 2–3 years out of a pair). Best for those who prefer a stable clog over a sneaker and want excellent arch support.", url: A('Dansko Professional clog') },
+  { name: 'Brooks Ghost / Adrenaline GTS', badge: 'Best for Support', price: '~$140', blurb: "If you overpronate or need stability, the Adrenaline GTS offers guided support; the Ghost is the neutral sibling. Both deliver reliable cushioning and a secure fit that holds up to constant standing and walking.", url: A('Brooks Adrenaline GTS womens') },
+  { name: 'Crocs Bistro Pro LiteRide', badge: 'Best Easy-Clean', price: '~$60', blurb: "Slip-resistant, fully enclosed, and rinse-clean after a messy shift — exactly what you want for ER, OR, and floor work. The LiteRide footbed adds real cushioning the basic Crocs lack. Budget-friendly, too.", url: A('Crocs Bistro Pro LiteRide clog') },
+  { name: 'Skechers Slip-ins Arch Fit', badge: 'Best Slip-On Value', price: '~$85', blurb: "Step in without bending down — genuinely convenient mid-shift — plus the Arch Fit insole gives solid support at a friendlier price than the premium brands. A great everyday option for budget-conscious nurses.", url: A('Skechers Slip-ins Arch Fit womens') },
+];
+
+const faq = [
+  { q: 'What are the best shoes for nurses on 12-hour shifts?', a: 'For long shifts on hard floors, maximal-cushion sneakers like the HOKA Bondi 8 are the top pick, followed by supportive options like Brooks Adrenaline. If you prefer a clog, the Dansko Professional offers excellent support and durability.' },
+  { q: 'Are HOKA shoes good for nurses?', a: 'Yes — HOKAs (especially the Bondi) are among the most recommended shoes among nurses thanks to their thick, shock-absorbing cushioning that reduces foot, knee, and back fatigue during 12-hour shifts.' },
+  { q: 'Clogs or sneakers for nursing?', a: 'Both work. Clogs (Dansko, Crocs) are easy to clean and slip on/off and offer a stable, supportive base. Sneakers (HOKA, Brooks) give more cushioning and are better if you walk a lot. It comes down to your unit and personal preference.' },
+  { q: 'Do nursing shoes need to be slip-resistant?', a: 'Ideally, yes. Spills are constant in healthcare, so a slip-resistant outsole is a real safety feature. Crocs Bistro Pro and many nursing-specific shoes are designed with slip-resistant soles.' },
+];
+---
+
+<BestReview
+  title="The Best Shoes for Nurses (2026) – Top Picks for 12-Hour Shifts"
+  h1="The Best Shoes for Nurses"
+  description="The best nursing shoes for 2026 — from cult-favorite HOKA cushioning to durable Dansko clogs and easy-clean Crocs. Comfortable, supportive, slip-resistant picks for 12-hour shifts."
+  breadcrumbLabel="Best Nursing Shoes"
+  listName="Best Shoes for Nurses"
+  picks={picks}
+  faq={faq}
+>
+  <p>Few things matter more to a nurse's body than their shoes. Twelve hours on hard hospital floors punishes your feet, knees, and back, and the right pair makes a real difference by the end of a shift. The best nursing shoes share three traits: serious cushioning, supportive structure, and a slip-resistant, easy-to-clean build.</p>
+  <p>Our picks below cover cushioned sneakers, supportive clogs, and easy-clean options across budgets. Whatever you choose, prioritize fit and support over looks — your feet will thank you.</p>
+</BestReview>

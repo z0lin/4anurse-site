@@ -1,0 +1,32 @@
+---
+import BestReview from '../components/BestReview.astro';
+const A = (k: string) => `https://www.amazon.com/s?k=${encodeURIComponent(k)}&tag=4anurse05-20`;
+
+const picks = [
+  { name: '3M Littmann Classic III', badge: 'Best Overall', price: '~$110', blurb: "The default stethoscope on most hospital floors, and for good reason. The Classic III has a tunable dual-sided chest piece, solid acoustics for routine assessments, and a build that lasts 7–10+ years. If you want one scope that does almost everything well, this is it.", url: A('3M Littmann Classic III stethoscope') },
+  { name: '3M Littmann Cardiology IV', badge: 'Best for ICU / Critical Care', price: '~$200', blurb: "A noticeable step up in acoustic sensitivity — it picks up subtle heart and lung sounds the Classic III can miss. Worth it for ICU, ER, cardiac, and any nurse who relies heavily on auscultation. Doubles as an excellent graduation gift.", url: A('3M Littmann Cardiology IV stethoscope') },
+  { name: '3M Littmann Lightweight II S.E.', badge: 'Best for New Grads', price: '~$50', blurb: "A genuine Littmann at an entry price. Lighter and less sensitive than the Classic III, but plenty for vitals, blood pressures, and general floor work. A smart pick for nursing students and new grads who want the Littmann name without the full cost.", url: A('Littmann Lightweight II SE stethoscope') },
+  { name: 'MDF Acoustica', badge: 'Best Budget', price: '~$35', blurb: "The best non-Littmann value. Surprisingly good acoustics for the price, a lifetime warranty, and a free-parts-for-life program. Ideal as a backup, for students on a tight budget, or anyone who tends to lose scopes.", url: A('MDF Acoustica stethoscope') },
+  { name: 'ADC Adscope 603', badge: 'Best Value Alternative', price: '~$45', blurb: "A clinician favorite that punches above its price. Clear acoustics, a comfortable headset, and a lighter feel than the Cardiology line. A strong choice if you want quality without paying Littmann prices.", url: A('ADC Adscope 603 stethoscope') },
+];
+
+const faq = [
+  { q: 'What stethoscope do most nurses use?', a: 'The 3M Littmann Classic III is the most common stethoscope on hospital floors. It balances good acoustics, durability, and price, which makes it the go-to for general med-surg, telemetry, and most nursing roles.' },
+  { q: 'Littmann Classic III vs Cardiology IV — which should a nurse get?', a: 'The Classic III is ideal for most nurses doing routine assessments. The Cardiology IV has noticeably better acoustic sensitivity and is worth the upgrade for ICU, ER, cardiac, and critical care nurses who depend on catching subtle sounds.' },
+  { q: 'What is the best stethoscope for a nursing student?', a: 'For students, the Littmann Lightweight II S.E. or the budget-friendly MDF Acoustica both cover everything you need for school and clinicals. If you can stretch the budget, the Classic III will carry you well into your career.' },
+  { q: 'How much should a nurse spend on a stethoscope?', a: 'Plan on $35–110 for most nursing roles. Students and new grads do fine in the $35–50 range; the Classic III (~$110) is the long-term sweet spot; and critical care nurses often invest ~$200 in a Cardiology IV that lasts a decade.' },
+];
+---
+
+<BestReview
+  title="The Best Stethoscopes for Nurses (2026) – Tested Picks by Role & Budget"
+  h1="The Best Stethoscopes for Nurses"
+  description="The best stethoscopes for nurses in 2026 — from the floor-standard Littmann Classic III to budget picks for students and cardiology-grade scopes for ICU. Compared by role and budget."
+  breadcrumbLabel="Best Stethoscopes"
+  listName="Best Stethoscopes for Nurses"
+  picks={picks}
+  faq={faq}
+>
+  <p>A stethoscope is the one tool a nurse reaches for on nearly every shift, so it's worth getting right. The best choice depends mostly on your role: a med-surg or floor nurse is well served by a dependable mid-range scope, while ICU, ER, and cardiac nurses benefit from the extra acoustic sensitivity of a cardiology-grade model. Students and new grads can start more affordably and upgrade later.</p>
+  <p>Below are our top picks across roles and budgets. A good stethoscope lasts 7–10+ years, so think of it as a long-term investment — and a fantastic <a href="/nurse-graduation-gifts/">graduation gift</a> for a new nurse.</p>
+</BestReview>

@@ -1,0 +1,32 @@
+---
+import BestReview from '../components/BestReview.astro';
+const A = (k: string) => `https://www.amazon.com/s?k=${encodeURIComponent(k)}&tag=4anurse05-20`;
+
+const picks = [
+  { name: 'Comrad Knee-High Compression Socks', badge: 'Best Overall', price: '~$28', blurb: "Graduated 15–20 mmHg compression that actually stays up all shift, in a soft, breathable knit that doesn't dig in. Comfortable enough to forget you're wearing them, with colors and patterns that work under scrubs. The all-around best for most nurses.", url: A('Comrad knee high compression socks 15-20 mmHg') },
+  { name: 'Physix Gear Sport (Multipack)', badge: 'Best Value Multipack', price: '~$20 / multi', blurb: "Reliable 20–30 mmHg compression in budget multipacks, so you can keep a clean pair ready every shift. Durable, well-reviewed, and a great way to build a full rotation without spending much.", url: A('Physix Gear Sport compression socks') },
+  { name: 'Sockwell Merino Compression', badge: 'Best Comfort', price: '~$30', blurb: "Merino wool blend that regulates temperature and resists odor — ideal if your feet run hot or sweaty on long shifts. Moderate 15–20 mmHg graduated compression in a genuinely cozy sock.", url: A('Sockwell compression socks merino') },
+  { name: 'Bombas Performance Compression', badge: 'Best Premium', price: '~$32', blurb: "Premium cushioned footbed, a stay-up cuff, and the comfort Bombas is known for. Pricier per pair, but a treat-yourself upgrade — and a nice gift — for a nurse on their feet all day.", url: A('Bombas compression socks') },
+  { name: 'CHARMKING Compression Socks (8 Pairs)', badge: 'Best Budget Bulk', price: '~$25 / 8', blurb: "Eight pairs for the price of one premium pair. The 15–20 mmHg compression is lighter, but for everyday wear and a full week's rotation on a budget, it's hard to beat the value.", url: A('CHARMKING compression socks 8 pairs') },
+];
+
+const faq = [
+  { q: 'What compression level should nurses wear?', a: 'For all-day standing, 15–20 mmHg is the sweet spot for most nurses — enough to reduce swelling and leg fatigue without feeling restrictive. Nurses with significant swelling or on doctor advice may go to 20–30 mmHg.' },
+  { q: 'Do compression socks actually help nurses?', a: 'Yes. On 12-hour shifts, graduated compression improves circulation, reduces leg and ankle swelling, and cuts down end-of-shift fatigue and achiness. Most nurses who try them stick with them.' },
+  { q: 'How many pairs of compression socks does a nurse need?', a: 'Enough to wear a fresh pair every shift between washes — usually 5–7 pairs. Budget multipacks make building a full rotation affordable, while a couple of premium pairs are nice for comfort.' },
+  { q: 'Are knee-high or ankle compression socks better for nurses?', a: 'Knee-high graduated compression is more effective for circulation and swelling because it works the full lower leg. Ankle or compression sleeves are a lighter option but generally less effective for long shifts.' },
+];
+---
+
+<BestReview
+  title="The Best Compression Socks for Nurses (2026) – Comfort for 12-Hour Shifts"
+  h1="The Best Compression Socks for Nurses"
+  description="The best compression socks for nurses in 2026 — graduated 15–20 mmHg picks that reduce swelling and leg fatigue on 12-hour shifts, from premium pairs to budget multipacks."
+  breadcrumbLabel="Best Compression Socks"
+  listName="Best Compression Socks for Nurses"
+  picks={picks}
+  faq={faq}
+>
+  <p>Ask a veteran nurse for their #1 self-care tip and compression socks come up again and again. On a 12-hour shift, graduated compression keeps blood moving, reduces swelling, and means your legs aren't throbbing by the drive home. For most nurses, 15–20 mmHg is the right level — supportive without being restrictive.</p>
+  <p>Our picks below cover everyday comfort, budget multipacks for a full rotation, and a few premium upgrades that make great gifts. Buy enough pairs to wear a clean set every shift.</p>
+</BestReview>

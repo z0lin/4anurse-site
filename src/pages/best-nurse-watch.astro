@@ -1,0 +1,32 @@
+---
+import BestReview from '../components/BestReview.astro';
+const A = (k: string) => `https://www.amazon.com/s?k=${encodeURIComponent(k)}&tag=4anurse05-20`;
+
+const picks = [
+  { name: 'Speidel Scrub Watch / Nurse Fob Watch', badge: 'Best for Bare-Below-Elbow', price: '~$30', blurb: "A clip-on fob watch pins to your scrubs instead of your wrist — perfect for units with bare-below-the-elbow infection-control policies. Most have a clear second hand for counting pulse and respirations, and they wipe clean easily.", url: A('nurse fob watch clip on second hand') },
+  { name: 'Apple Watch SE', badge: 'Best Smartwatch', price: '~$249', blurb: "If your facility allows smartwatches, the Apple Watch SE handles discreet notifications, timers for meds and turns, heart-rate checks, and a silent vibrating alarm. Pair it with a silicone band you can sanitize. A standout graduation gift.", url: A('Apple Watch SE') },
+  { name: 'Timex Easy Reader (with second hand)', badge: 'Best Analog', price: '~$40', blurb: "A no-nonsense analog watch with a large, clear face and a real second hand — exactly what you need to count vitals at a glance. Reliable, readable, and affordable, with a wipeable band option.", url: A('Timex Easy Reader watch second hand') },
+  { name: 'Casio Classic / Illuminator', badge: 'Best Durable Budget', price: '~$25', blurb: "Nearly indestructible, water-resistant, and cheap enough to replace without a second thought. Digital models show seconds clearly and the backlight helps on dim night shifts. A workhorse for nurses hard on gear.", url: A('Casio illuminator watch') },
+  { name: 'Garmin Forerunner / Venu', badge: 'Best for Fitness Tracking', price: '~$200', blurb: "For nurses who want step, sleep, and heart-rate tracking alongside the basics, Garmin offers long battery life (days, not hours) and silent alarms. A great fit if you want a smartwatch that won't die mid-shift.", url: A('Garmin Venu smartwatch') },
+];
+
+const faq = [
+  { q: 'Can nurses wear watches at work?', a: 'It depends on the facility. Many hospitals with bare-below-the-elbow infection-control policies prohibit wrist watches, which is why clip-on fob watches are popular — they pin to your scrubs and keep your wrists clear for hand hygiene.' },
+  { q: 'Does a nurse watch need a second hand?', a: 'Yes, ideally. A clear second hand (or a digital seconds display) is essential for counting heart rate and respiratory rate accurately. It is the single most important feature in a nursing watch.' },
+  { q: 'Are smartwatches good for nurses?', a: 'When allowed, smartwatches like the Apple Watch are great for silent alarms, timers, and discreet notifications. Use a silicone band you can wipe down, and check your facility policy first — some units restrict them.' },
+  { q: 'What is the best watch for a new nurse?', a: 'A clip-on fob watch with a second hand is the safest universal choice since it complies with most dress codes. If smartwatches are permitted, an Apple Watch SE makes an excellent and popular graduation gift.' },
+];
+---
+
+<BestReview
+  title="The Best Watches for Nurses (2026) – Fob, Analog & Smartwatch Picks"
+  h1="The Best Watches for Nurses"
+  description="The best watches for nurses in 2026 — clip-on fob watches for bare-below-elbow units, clear analog watches with second hands, and smartwatches for those allowed to wear them."
+  breadcrumbLabel="Best Nurse Watches"
+  listName="Best Watches for Nurses"
+  picks={picks}
+  faq={faq}
+>
+  <p>A nurse's watch has one non-negotiable job: helping you count vitals accurately. That means a clear second hand (or digital seconds) above all else. After that, it comes down to your facility's dress code — many hospitals' bare-below-the-elbow policies rule out wrist watches, which is why the humble clip-on fob watch remains a nursing staple.</p>
+  <p>Below are our picks across fob watches, simple analog watches, and smartwatches, so you can match one to your unit's rules and your budget. Always check your facility policy before investing in a wrist-worn option.</p>
+</BestReview>
