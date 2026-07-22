@@ -2447,6 +2447,50 @@ declare module 'astro:content' {
   data: InferEntrySchema<"categories">
 } & { render(): Render[".md"] };
 };
+"hubs": {
+"gifts-for-er-nurses.md": {
+	id: "gifts-for-er-nurses.md";
+  slug: "gifts-for-er-nurses";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+"gifts-for-icu-nurses.md": {
+	id: "gifts-for-icu-nurses.md";
+  slug: "gifts-for-icu-nurses";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+"nurse-christmas-gifts.md": {
+	id: "nurse-christmas-gifts.md";
+  slug: "nurse-christmas-gifts";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+"nurse-graduation-gifts.md": {
+	id: "nurse-graduation-gifts.md";
+  slug: "nurse-graduation-gifts";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+"nurse-retirement-gifts.md": {
+	id: "nurse-retirement-gifts.md";
+  slug: "nurse-retirement-gifts";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+"nurses-week-gifts.md": {
+	id: "nurses-week-gifts.md";
+  slug: "nurses-week-gifts";
+  body: string;
+  collection: "hubs";
+  data: InferEntrySchema<"hubs">
+} & { render(): Render[".md"] };
+};
 "products": {
 "1-x-im-a-nurse-superpower-light-blue-18-oz-mug.md": {
 	id: "1-x-im-a-nurse-superpower-light-blue-18-oz-mug.md";
