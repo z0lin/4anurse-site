@@ -1,0 +1,101 @@
+{
+  "_comment": "4aNurse faceted taxonomy rules. Rules-as-data so the same file drives the Phase 2 migration, the CMS validation, and the Phase 6 automated classifier. Keyword arrays are case-insensitive regex fragments matched against product title + brand + PA-API features.",
+  "_version": "1.0.0",
+  "_created": "2026-07-29",
+
+  "facets": {
+    "type": {
+      "cardinality": "single",
+      "required": true,
+      "routePrefix": "/gifts/",
+      "_note": "ORDER MATTERS. First match wins. Specific rules precede general ones so 'Stethoscope Case Kit' lands in medical-tools, not stethoscopes."
+    },
+    "occasion": { "cardinality": "multi", "required": false, "routePrefix": "/gifts/occasion/" },
+    "recipient": { "cardinality": "multi", "required": false, "routePrefix": "/gifts/for/" },
+    "price": { "cardinality": "single", "required": true, "routePrefix": "/gifts/", "derived": true }
+  },
+
+  "type": [
+    { "tag": "vein-finders",   "label": "Vein Finders",       "any": ["vein finder", "vein viewer", "transillumin", "illumivein", "oncovein", "ledx", "vein mapping"] },
+    { "tag": "self-care",      "label": "Self-Care",          "any": ["cosmetic bag", "makeup bag", "hand cream", "hand repair", "eye mask", "under eye", "toiletry", "survival kit", "spa"] },
+    { "tag": "stethoscopes",   "label": "Stethoscopes",       "any": ["stethoscope"], "none": ["holder", "case kit", "name tag", "necklace", "charm", "badge", "hip clip", "clip-on", "notebook", "journal"] },
+    { "tag": "badge-reels",    "label": "Badge Reels",        "any": ["badge reel", "badge holder", "badge clip", "badge buddy", "badge scroll", "id badge"] },
+    { "tag": "reference-cards","label": "Reference Cards",    "any": ["reference card", "reference guide", "lab value", "badge reference", "pocket reference"], "none": ["clipboard"] },
+    { "tag": "clipboards",     "label": "Clipboards",         "any": ["clipboard", "padfolio"] },
+    { "tag": "medical-tools",  "label": "Medical Tools",      "any": ["penlight", "pen light", "scissors", "otoscope", "ear scope", "sphygmomanometer", "blood pressure", "stethoscope case", "stethoscope holder", "hip clip", "hip holder", "clip-on stethoscope"] },
+    { "tag": "games-media",    "label": "Games & Media",      "any": ["board game", "monopoly", "complete series", "tarot", "activity book"] },
+    { "tag": "gift-sets",      "label": "Gift Sets",          "any": ["gift set", "gifts set", "gift box set", "survival kit", "care package", "gift basket"] },
+    { "tag": "bags",           "label": "Bags & Totes",       "any": ["tote bag", "backpack", "laptop bag", "nursing bag", "lunch bag", "clinical bag", "wine bag", "purse"] },
+    { "tag": "jewelry",        "label": "Jewelry",            "any": ["necklace", "pendant", "bracelet", "earring", "keychain", "sterling silver", "gold plated", "birthstone", "charms", "name tag"] },
+    { "tag": "apparel",        "label": "Apparel",            "any": ["sweatshirt", "compression socks", "t-shirt", "tshirt", "hoodie", "scrub top", "socks"] },
+    { "tag": "drinkware",      "label": "Drinkware",          "any": ["tumbler", "mug", "water bottle", "party cup", "travel mug", "wine glass", "coffee cup", "stanley"] },
+    { "tag": "stationery",     "label": "Stationery",         "any": ["sticky note", "notepad", "gel pen", "pens", "marker", "sticker", "decal", "notebook", "journal"] },
+    { "tag": "books",          "label": "Books",              "any": ["coloring book", "paperback", "hardcover", "book", "would you rather", "scripture cards", "handwritten notes"] },
+    { "tag": "home-decor",     "label": "Home & Decor",       "any": ["figurine", "plaque", "box sign", "candle", "pillow", "doll", "crochet", "sun catcher", "desk decor", "affirmation", "angel", "tabletop", "resin"] }
+  ],
+
+  "occasion": [
+    { "tag": "graduation",  "label": "Graduation",           "any": ["graduation", "grad gift", "new nurse", "future registered", "first day", "pinning", "newly licensed", "brand new nurse", "first job"] },
+    { "tag": "nurses-week", "label": "Nurses Week",          "any": ["nurses week", "nurse week", "nurse appreciation", "appreciation", "nurses day", "nurse's day"] },
+    { "tag": "christmas",   "label": "Christmas & Holiday",  "any": ["christmas", "holiday", "stocking", "secret santa"] },
+    { "tag": "retirement",  "label": "Retirement",           "any": ["retirement", "retiring", "retired"] },
+    { "tag": "mothers-day", "label": "Mother's Day",         "any": ["mothers day", "mother's day"] },
+    { "tag": "thank-you",   "label": "Thank You",            "any": ["thank you", "gratitude", "thankful"] },
+    { "tag": "birthday",    "label": "Birthday",             "any": ["birthday"] }
+  ],
+
+  "recipient": [
+    { "tag": "nicu",         "label": "NICU Nurses",          "any": ["nicu", "neonatal"] },
+    { "tag": "icu",          "label": "ICU Nurses",           "any": ["icu", "intensive care", "critical care"] },
+    { "tag": "er",           "label": "ER Nurses",            "any": ["er nurse", "emergency", "trauma"] },
+    { "tag": "pediatric",    "label": "Pediatric Nurses",     "any": ["pediatric", "peds", "infant"] },
+    { "tag": "school-nurse", "label": "School Nurses",        "any": ["school nurse"] },
+    { "tag": "student",      "label": "Nursing Students",     "any": ["nursing school", "nursing student", "student"] },
+    { "tag": "np",           "label": "Nurse Practitioners",  "any": ["practitioner"] },
+    { "tag": "leader",       "label": "Nurse Leaders",        "any": ["nurse leader", "manager", "boss", "charge nurse"] },
+    { "tag": "cna",          "label": "CNAs",                 "any": ["cna", "certified nursing assistant"] },
+    { "tag": "lpn",          "label": "LPNs",                 "any": ["lpn"] },
+    { "tag": "male-nurse",   "label": "Male Nurses",          "any": ["for men", "male nurse", "men work"] },
+    { "tag": "nurse-mom",    "label": "Nurse Moms",           "any": ["nurse mom", "mom gift"] }
+  ],
+
+  "price": [
+    { "tag": "under-25",  "label": "Under $25",  "max": 25 },
+    { "tag": "under-50",  "label": "Under $50",  "max": 50 },
+    { "tag": "under-100", "label": "Under $100", "max": 100 },
+    { "tag": "luxury",    "label": "Luxury",     "min": 100 }
+  ],
+
+  "matching": {
+    "_comment": "Matching semantics. Substring matching produced false positives ('men work' matched inside 'Women Work'), so keywords are matched on word boundaries.",
+    "wordBoundary": true,
+    "caseSensitive": false
+  },
+
+  "credentialStuffingGuard": {
+    "_comment": "Amazon sellers stuff titles with every credential ('Nurse Rn Lpn Practitioner CNA BSN') for search reach. That is a seller SEO artifact, not a specialty signal. When a title mentions this many credentials or more, suppress ALL recipient tags rather than tagging it for every specialty.",
+    "tokens": ["rn", "lpn", "cna", "practitioner", "bsn", "msn", "np"],
+    "threshold": 3,
+    "suppresses": ["recipient"]
+  },
+
+  "typeFallback": {
+    "_comment": "Applied only when no type rule matches, so nothing lands as UNCLASSIFIED. Maps the legacy category to a new type. 'accessories' is deliberately absent — it was the dumping ground we are dissolving, so those items must be reviewed by hand.",
+    "books": "books",
+    "home": "home-decor",
+    "drinkware": "drinkware",
+    "jewelry": "jewelry",
+    "apparel": "apparel",
+    "humor": "games-media",
+    "self-care": "self-care",
+    "graduation": "gift-sets",
+    "other": null
+  },
+
+  "pageGuard": {
+    "_comment": "Enforced at build time. Prevents thin/doorway pages from faceted generation.",
+    "minProductsSingleFacet": 4,
+    "minProductsIntersection": 8,
+    "requireUniqueIntro": true
+  }
+}

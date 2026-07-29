@@ -21,3 +21,10 @@ pnpm-debug.log*
 # editor
 .vscode/
 .idea/
+
+# Astro generated types (recreated by `astro sync` / `astro build`)
+.astro/
+
+# Python bytecode from the one-off migration scripts
+__pycache__/
+*.py[cod]
