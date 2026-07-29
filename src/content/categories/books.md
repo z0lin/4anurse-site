@@ -1,7 +1,8 @@
 ---
 title: "Books for Nurses – Reads, References & a Few Good Laughs"
 label: "Books"
-categoryId: "books"
+types: [books]
+order: 50
 description: "Books for nurses that actually deliver — memoirs, nurse coloring books, study guides, and nursing gifts for readers. Great for nursing students and working RNs."
 faq:
   - q: "What is the best book to give a nurse?"

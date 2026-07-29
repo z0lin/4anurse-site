@@ -1,7 +1,8 @@
 ---
 title: "Nurse Tumblers & Mugs – Drinkware Built for 12-Hour Shifts"
 label: "Drinkware"
-categoryId: "drinkware"
+types: [drinkware]
+order: 30
 description: "Nurse tumblers, mugs, and gift sets that survive a 12-hour shift. Top picks for Nurses Week, graduation, or any day they need a great nurse gift."
 faq:
   - q: "What size tumbler do nurses prefer?"

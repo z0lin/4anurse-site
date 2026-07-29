@@ -1,7 +1,8 @@
 ---
 title: "Nursing Graduation Gifts – The Best Ideas for New RNs and BSN Grads"
 label: "Graduation"
-categoryId: "graduation"
+occasions: [graduation]
+order: 20
 description: "Top nursing graduation gifts for new RNs — stethoscopes, nurse jewelry, and clinical essentials. Nurse graduation gift ideas they'll actually use."
 faq:
   - q: "What are the best nursing graduation gift ideas for a new RN?"

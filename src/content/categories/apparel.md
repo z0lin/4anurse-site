@@ -1,7 +1,8 @@
 ---
 title: "Nurse Apparel – Scrubs, Compression Socks & Wearable Gifts for Nurses"
 label: "Apparel"
-categoryId: "apparel"
+types: [apparel]
+order: 90
 description: "Shop nurse apparel gifts — scrubs, compression socks, nursing shoes, and wearable picks for nurses who spend 12 hours on their feet. Great for Nurses Week and graduation."
 faq:
   - q: "What apparel do nurses actually want as gifts?"

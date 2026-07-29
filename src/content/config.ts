@@ -77,20 +77,44 @@ const blog = defineCollection({
   }),
 });
 
+/**
+ * Category pages are the URL layer; product facets are the data layer.
+ *
+ * A page declares which facet values it collects, so a URL can outlive a
+ * taxonomy change. /gifts/accessories/ keeps its rankings by aggregating the
+ * seven types that `accessories` split into, instead of being redirected, and
+ * /gifts/graduation/ collects an OCCASION even though `graduation` is no longer
+ * a product type.
+ *
+ * At least one of types/occasions/recipients must be non-empty — a page that
+ * selects nothing would render an empty grid.
+ */
 const categories = defineCollection({
   type: 'content',
-  schema: z.object({
-    title: z.string(), // e.g. "Nursing Graduation Gifts"
-    label: z.string(), // e.g. "Graduation" (used in breadcrumb)
-    categoryId: z.string(), // must match a product category value
-    description: z.string(),
-    faq: z.array(
-      z.object({
-        q: z.string(),
-        a: z.string(),
-      })
-    ).optional(),
-  }),
+  schema: z
+    .object({
+      title: z.string(), // e.g. "Nursing Graduation Gifts"
+      label: z.string(), // e.g. "Graduation" (used in breadcrumb)
+      description: z.string(),
+
+      types: z.array(z.enum(tuple(TYPE_TAGS))).default([]),
+      occasions: z.array(z.enum(tuple(OCCASION_TAGS))).default([]),
+      recipients: z.array(z.enum(tuple(RECIPIENT_TAGS))).default([]),
+
+      /** Sort weight in the /gifts/ hub. Lower comes first. */
+      order: z.number().default(100),
+
+      faq: z.array(
+        z.object({
+          q: z.string(),
+          a: z.string(),
+        })
+      ).optional(),
+    })
+    .refine(
+      (d) => d.types.length + d.occasions.length + d.recipients.length > 0,
+      { message: 'A category page must select at least one type, occasion or recipient' }
+    ),
 });
 
 // Evergreen occasion/specialty hub pages (pillar pages at root, e.g. /nurses-week-gifts/)

@@ -1,7 +1,8 @@
 ---
 title: "Nurse Accessories & Clinical Tools – Gifts That Work Every Shift"
 label: "Accessories"
-categoryId: "accessories"
+types: [stethoscopes, badge-reels, clipboards, bags, medical-tools, reference-cards, vein-finders]
+order: 10
 description: "Top nurse accessories for daily use — badge reels, stethoscopes, clipboard organizers, and clinical tools that make a great gift for any nurse."
 faq:
   - q: "What accessories do nurses use every single day?"

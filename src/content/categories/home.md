@@ -1,7 +1,8 @@
 ---
 title: "Nurse Home Gifts & Décor – Celebrating Nurses When They're Finally Off the Clock"
 label: "Home"
-categoryId: "home"
+types: [home-decor]
+order: 60
 description: "Nurse home gifts they'll actually display — mugs, décor, candles, and sentimental pieces. Great nurse gifts for under $20 and Nurses Week ideas."
 faq:
   - q: "What are good nurse-themed home gifts?"

@@ -1,7 +1,8 @@
 ---
 title: "Nurse Jewelry – Meaningful Gifts for Nurses and Nursing Graduates"
 label: "Jewelry"
-categoryId: "jewelry"
+types: [jewelry]
+order: 40
 description: "Nurse necklaces, stethoscope pendants, and caduceus jewelry in sterling silver. Meaningful nurse jewelry gifts for graduation, Nurses Week, and beyond."
 faq:
   - q: "What jewelry is meaningful for a nurse?"
