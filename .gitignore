@@ -28,3 +28,6 @@ pnpm-debug.log*
 # Python bytecode from the one-off migration scripts
 __pycache__/
 *.py[cod]
+
+# Ingestion staging queue (local review artifact, not content)
+ingest-queue.json
