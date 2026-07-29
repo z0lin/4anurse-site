@@ -4,14 +4,13 @@
  * Shared by scripts/migrate-taxonomy.mjs and (in future) the ingestion
  * pipeline, so a rule change takes effect everywhere at once.
  */
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+// Import attribute rather than readFileSync(__dirname). Astro bundles this
+// module into dist/pages/, where a __dirname-relative path no longer resolves —
+// it worked under plain Node and broke the build. The import form is resolved
+// at bundle time by Vite and natively by Node, so both callers work.
+import rulesJson from '../data/tag-rules.json' with { type: 'json' };
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-export const rules = JSON.parse(
-  readFileSync(join(__dirname, '../src/data/tag-rules.json'), 'utf8')
-);
+export const rules = rulesJson;
 
 /**
  * Match a keyword against text.
