@@ -1,7 +1,8 @@
 ---
 title: "Self-Care Gifts for Nurses – Because the Caregiver Deserves Care Too"
 label: "Self-Care"
-categoryId: "self-care"
+types: [self-care]
+order: 70
 description: "Self-care gifts for nurses that actually help — hand creams, under-eye masks, cosmetic bags, and Nurses Week picks for the nurse who gives everything."
 faq:
   - q: "What self-care gifts do nurses actually use?"

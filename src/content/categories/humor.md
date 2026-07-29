@@ -1,7 +1,8 @@
 ---
 title: "Funny Nurse Gifts – Because Healthcare Needs a Sense of Humor"
 label: "Humor"
-categoryId: "humor"
+types: [games-media]
+order: 80
 description: "Funny nurse gifts that land — nurse humor stickers, Grey's Anatomy Monopoly, and picks for white elephant exchanges. For nurses who've seen everything."
 faq:
   - q: "What counts as a funny nurse gift?"
