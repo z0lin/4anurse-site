@@ -2,9 +2,12 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const categories = (await getCollection('categories')).sort((a, b) =>
-  a.data.label.localeCompare(b.data.label)
-);
+// Intersection pages (hideFromHub) are linked from their parent category rather
+// than the main hub, so this grid stays a browsable set of real categories
+// instead of every facet combination.
+const categories = (await getCollection('categories'))
+  .filter((c) => !c.data.hideFromHub)
+  .sort((a, b) => a.data.order - b.data.order || a.data.label.localeCompare(b.data.label));
 
 const hubs = (await getCollection('hubs')).sort((a, b) =>
   a.data.breadcrumbLabel.localeCompare(b.data.breadcrumbLabel)

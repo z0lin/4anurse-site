@@ -96,6 +96,9 @@
     "_comment": "Enforced at build time. Prevents thin/doorway pages from faceted generation.",
     "minProductsSingleFacet": 4,
     "minProductsIntersection": 8,
-    "requireUniqueIntro": true
+    "requireUniqueIntro": true,
+
+    "maxParentOverlap": 0.7,
+    "_maxParentOverlapComment": "An intersection holding more than this share of EITHER parent's products is not a distinct page, it is a near-copy of that parent. Measured 2026-07-29: of 20 intersections clearing the count threshold, 16 failed this check and 3 (badge-reels-under-25, stationery-under-25, np-under-25) were 100% identical to a parent. Cause is the catalog's price distribution — 134 of 190 products are under $25, so 'X under $25' is effectively 'X'. Price-band intersections only become meaningful once higher-priced stock exists, which is a Phase 6 ingestion target rather than a routing problem."
   }
 }

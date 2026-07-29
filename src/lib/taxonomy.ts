@@ -61,3 +61,20 @@ export function passesGuard(productCount: number, isIntersection: boolean): bool
     : PAGE_GUARD.minProductsSingleFacet;
   return productCount >= min;
 }
+
+/**
+ * Facet values must be globally unique across all four facets, because
+ * intersection URLs are built as `{valueA}-{valueB}` with no facet prefix
+ * (/gifts/drinkware-under-25/). A value appearing in two facets would make such
+ * a slug ambiguous. `graduation` used to be both a type and an occasion, so this
+ * is a real hazard, not a hypothetical one — fail the build if it recurs.
+ */
+const ALL_TAGS = [...TYPE_TAGS, ...OCCASION_TAGS, ...RECIPIENT_TAGS, ...PRICE_TAGS];
+const DUPLICATE_TAGS = ALL_TAGS.filter((t, i) => ALL_TAGS.indexOf(t) !== i);
+if (DUPLICATE_TAGS.length) {
+  throw new Error(
+    `tag-rules.json: facet values must be unique across facets. Duplicated: ${[
+      ...new Set(DUPLICATE_TAGS),
+    ].join(', ')}`
+  );
+}

@@ -1,5 +1,5 @@
 import { defineCollection, z } from 'astro:content';
-import { TYPE_TAGS, OCCASION_TAGS, RECIPIENT_TAGS } from '../lib/taxonomy';
+import { TYPE_TAGS, OCCASION_TAGS, RECIPIENT_TAGS, PRICE_TAGS } from '../lib/taxonomy';
 
 const tuple = (a: string[]) => a as [string, ...string[]];
 
@@ -100,9 +100,32 @@ const categories = defineCollection({
       types: z.array(z.enum(tuple(TYPE_TAGS))).default([]),
       occasions: z.array(z.enum(tuple(OCCASION_TAGS))).default([]),
       recipients: z.array(z.enum(tuple(RECIPIENT_TAGS))).default([]),
+      prices: z.array(z.enum(tuple(PRICE_TAGS))).default([]),
+
+      /**
+       * How facet GROUPS combine.
+       *
+       * 'any' (default) — a product needs to match any one group. Correct for
+       *   broad pages: /gifts/accessories/ collects seven types.
+       * 'all' — a product must match every non-empty group. Required for
+       *   intersection pages: /gifts/drinkware-under-25/ means drinkware AND
+       *   under $25, not drinkware OR under $25.
+       *
+       * Values WITHIN a group are always OR'd.
+       */
+      match: z.enum(['any', 'all']).default('any'),
 
       /** Sort weight in the /gifts/ hub. Lower comes first. */
       order: z.number().default(100),
+
+      /**
+       * Grandfather an already-indexed URL below the page guard. Only for URLs
+       * that predate the guard — never to ship a new thin page.
+       */
+      allowThin: z.boolean().default(false),
+
+      /** Intersection pages are linked from their parents, not the main hub. */
+      hideFromHub: z.boolean().default(false),
 
       faq: z.array(
         z.object({
@@ -112,8 +135,8 @@ const categories = defineCollection({
       ).optional(),
     })
     .refine(
-      (d) => d.types.length + d.occasions.length + d.recipients.length > 0,
-      { message: 'A category page must select at least one type, occasion or recipient' }
+      (d) => d.types.length + d.occasions.length + d.recipients.length + d.prices.length > 0,
+      { message: 'A category page must select at least one type, occasion, recipient or price band' }
     ),
 });
 

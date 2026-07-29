@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { buildAmazonUrl } from '../../lib/taxonomy';
+import { buildAmazonUrl, priceBand, passesGuard, PAGE_GUARD } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
   const categoryPages = await getCollection('categories');
@@ -14,19 +14,71 @@ export async function getStaticPaths() {
 const { cat } = Astro.props;
 const { Content } = await cat.render();
 
-// A page collects any product matching any of its declared facet values, so a
-// URL can aggregate several types (/gifts/accessories/) or select an occasion
-// (/gifts/graduation/) without the route knowing anything about the taxonomy.
-const { types, occasions, recipients } = cat.data;
+// A page declares which facet values it collects, so the route knows nothing
+// about the taxonomy. `match` decides how the GROUPS combine: 'any' for broad
+// pages (/gifts/accessories/ aggregates 7 types), 'all' for intersections
+// (/gifts/drinkware-under-25/ needs drinkware AND under $25).
+const { types, occasions, recipients, prices, match } = cat.data;
 const allProducts = await getCollection('products');
+
+const groupHits = (p: any) => {
+  const hits: boolean[] = [];
+  if (types.length) hits.push(types.includes(p.data.type));
+  if (occasions.length) hits.push(occasions.some((o) => p.data.occasion.includes(o)));
+  if (recipients.length) hits.push(recipients.some((r) => p.data.recipient.includes(r)));
+  if (prices.length) hits.push(prices.includes(priceBand(p.data.priceValue) ?? ''));
+  return hits;
+};
+
 const products = allProducts
-  .filter(
-    (p) =>
-      types.includes(p.data.type) ||
-      occasions.some((o) => p.data.occasion.includes(o)) ||
-      recipients.some((r) => p.data.recipient.includes(r))
-  )
+  .filter((p) => {
+    const hits = groupHits(p);
+    return match === 'all' ? hits.every(Boolean) : hits.some(Boolean);
+  })
   .sort((a, b) => a.data.priceValue - b.data.priceValue);
+
+/**
+ * Build-time guard against thin/doorway pages.
+ *
+ * An intersection that drops below the threshold because STOCK changed — not
+ * because anyone edited the page — should fail the build loudly rather than
+ * quietly ship a near-empty grid. That is the failure mode the guard exists for.
+ *
+ * `allowThin` grandfathers pre-existing URLs: /gifts/apparel/ has only 3
+ * products but has been indexed since 2025, and deleting a ranking URL to
+ * satisfy a rule we introduced later would be strictly worse than keeping it.
+ */
+const nonEmptyGroups = [types, occasions, recipients, prices].filter((g) => g.length).length;
+const isIntersection = match === 'all' && nonEmptyGroups > 1;
+if (!cat.data.allowThin && !passesGuard(products.length, isIntersection)) {
+  const min = isIntersection
+    ? PAGE_GUARD.minProductsIntersection
+    : PAGE_GUARD.minProductsSingleFacet;
+  throw new Error(
+    `Thin page: /gifts/${cat.slug}/ has ${products.length} products, below the ${min} ` +
+      `minimum for ${isIntersection ? 'an intersection' : 'a single-facet'} page. ` +
+      `Add stock, widen the facets, or delete the page. ` +
+      `Set allowThin: true only to grandfather an already-indexed URL.`
+  );
+}
+
+/**
+ * Child intersection pages, so they are reachable and inherit link equity from
+ * the parent that already ranks. An intersection is a child when it selects a
+ * superset of this page's facet values and narrows with at least one more.
+ */
+const allCategories = await getCollection('categories');
+const facetSet = (d: any) => [
+  ...(d.types ?? []), ...(d.occasions ?? []), ...(d.recipients ?? []), ...(d.prices ?? []),
+];
+const ownFacets = facetSet(cat.data);
+const children = cat.data.hideFromHub
+  ? []
+  : allCategories.filter((c) => {
+      if (c.slug === cat.slug || !c.data.hideFromHub) return false;
+      const f = facetSet(c.data);
+      return ownFacets.some((v) => f.includes(v)) && f.length > ownFacets.length;
+    });
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
@@ -93,6 +145,17 @@ const faqSchema = cat.data.faq?.length ? {
   <section class="intro-content">
     <Content />
   </section>
+
+  {children.length > 0 && (
+    <section style="max-width: 1100px; margin: 1.5rem auto 0; padding: 0 1.5rem;">
+      <h2 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Narrow it down</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        {children.map((c) => (
+          <a class="tag" href={`/gifts/${c.slug}/`} style="text-decoration: none;">{c.data.label}</a>
+        ))}
+      </div>
+    </section>
+  )}
 
   <div class="filters" style="padding-top: 0.5rem;">
     <button class="price-pill active" data-range="all">All Prices</button>
