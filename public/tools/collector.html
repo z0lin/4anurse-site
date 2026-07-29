@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Internal tool: keep it out of search results and the sitemap. -->
+<meta name="robots" content="noindex, nofollow">
+<title>ASIN Collector — 4aNurse internal tool</title>
+<style>
+  :root { --bg:#fff; --fg:#151515; --muted:#5c5c5c; --line:#e3e3e3; --accent:#0b6bcb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141414; --fg:#ececec; --muted:#a3a3a3; --line:#2d2d2d; --accent:#7cc4ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  h1 { font-size: 1.7rem; margin:0 0 .4rem; }
+  h2 { font-size: 1.15rem; margin: 2.2rem 0 .6rem; }
+  p, li { color: var(--fg); }
+  .sub { color: var(--muted); margin-top:0; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:1.5rem; text-align:center; margin:1.5rem 0; }
+  .bm { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+    font-weight:600; padding:.7rem 1.4rem; border-radius:999px; cursor:grab; }
+  .hint { color:var(--muted); font-size:.9rem; margin-top:.75rem; }
+  ol { padding-left:1.3rem; } li { margin:.35rem 0; }
+  code, pre { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.87em; }
+  code { background:rgba(127,127,127,.14); padding:.12em .38em; border-radius:4px; }
+  pre { background:rgba(127,127,127,.1); padding:.85rem 1rem; border-radius:8px;
+    overflow-x:auto; border:1px solid var(--line); }
+  .note { border-left:3px solid var(--accent); padding:.6rem 0 .6rem 1rem; margin:1.5rem 0;
+    color:var(--muted); }
+  details { border:1px solid var(--line); border-radius:8px; padding:.75rem 1rem; margin-top:1rem; }
+  summary { cursor:pointer; font-weight:600; }
+  table { border-collapse:collapse; width:100%; margin:.5rem 0 0; font-size:.93rem; }
+  th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ASIN Collector</h1>
+  <p class="sub">Turn Amazon product pages you're already browsing into an importable CSV.</p>
+
+  <div class="drop">
+    <a class="bm" id="bm" href="#">📋 Collect ASIN</a>
+    <div class="hint">Drag this button to your bookmarks bar</div>
+  </div>
+
+  <h2>How to use it</h2>
+  <ol>
+    <li>Drag the button above onto your browser's bookmarks bar.</li>
+    <li>Open any Amazon product page you want to add.</li>
+    <li>Click the bookmark. It grabs the ASIN, title, price, image and brand, adds
+        them to a running list, and puts the whole list on your clipboard as CSV.</li>
+    <li>Repeat for as many products as you like — each click re-copies the full list.</li>
+    <li>Paste into a file, e.g. <code>new-products.csv</code>, and import:</li>
+  </ol>
+
+<pre>node scripts/ingest.mjs --import new-products.csv
+node scripts/ingest.mjs --review
+node scripts/ingest.mjs --commit --approve-all
+npm run build</pre>
+
+  <div class="note">
+    <strong>This is not a scraper.</strong> It doesn't crawl, fetch, or automate
+    anything. It reads the page you deliberately opened, in your own browser, and
+    writes text to your clipboard — nothing leaves your machine and no page is
+    visited that you didn't visit yourself. Bulk automated collection would breach
+    the Associates agreement and put the affiliate account at risk; this doesn't.
+  </div>
+
+  <h2>What it fills in</h2>
+  <table>
+    <tr><th>Column</th><th>Source</th></tr>
+    <tr><td><code>url_or_asin</code></td><td>the URL's <code>/dp/</code> segment</td></tr>
+    <tr><td><code>title</code></td><td><code>#productTitle</code></td></tr>
+    <tr><td><code>price</code></td><td>buy-box price, several fallbacks</td></tr>
+    <tr><td><code>image</code></td><td>highest-resolution main image</td></tr>
+    <tr><td><code>brand</code></td><td>byline, cleaned of "Visit the … Store"</td></tr>
+    <tr><td><code>type</code>, <code>occasion</code>, <code>recipient</code></td>
+        <td>left blank — the classifier assigns them from the title on import</td></tr>
+  </table>
+
+  <h2>Good to know</h2>
+  <ul>
+    <li>Amazon's markup varies by category, so if a field can't be read the toast
+        says which one. Fill that cell in by hand before importing rather than
+        trusting a blank.</li>
+    <li>Clicking the same product twice won't duplicate it.</li>
+    <li>The list persists in <code>localStorage</code> on amazon.com, so you can
+        collect across several sessions. <strong>Clear list</strong> in the toast
+        resets it.</li>
+    <li>If the clipboard is blocked by permissions policy, the toast shows a
+        text box to copy from manually.</li>
+    <li>Not sure what to shop for? Run <code>node scripts/gap-report.mjs</code> —
+        it names the facets currently blocking pages, and flags that higher-priced
+        stock is the top priority.</li>
+  </ul>
+
+  <details>
+    <summary>Bookmarklet not working?</summary>
+    <p>Some browsers block dragging. Create a bookmark manually and paste the URL
+    below as its address:</p>
+    <pre id="raw" style="white-space:pre-wrap;word-break:break-all">loading…</pre>
+    <p>Source: <a href="/tools/asin-collector.js">asin-collector.js</a> — the
+    bookmarklet on this page is built from that file at load time, so there's one
+    source of truth.</p>
+  </details>
+</main>
+
+<script>
+// Build the bookmarklet from the source file so the two can never drift.
+fetch('/tools/asin-collector.js')
+  .then(function (r) {
+    if (!r.ok) throw new Error(r.status);
+    return r.text();
+  })
+  .then(function (src) {
+    var href = 'javascript:' + encodeURIComponent('(function(){' + src + '})();');
+    document.getElementById('bm').setAttribute('href', href);
+    document.getElementById('raw').textContent = href;
+  })
+  .catch(function (e) {
+    document.getElementById('raw').textContent =
+      'Could not load /tools/asin-collector.js (' + e.message + ')';
+  });
+
+// Clicking it here would run it against this page, which has no ASIN.
+document.getElementById('bm').addEventListener('click', function (e) {
+  e.preventDefault();
+  alert('Drag this to your bookmarks bar, then click it while on an Amazon product page.');
+});
+</script>
+</body>
+</html>
