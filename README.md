@@ -2,6 +2,9 @@
 
 A complete rebuild of 4anurse.com as a **static Astro site** with **Decap CMS** for content management, deployed on your CloudPanel server.
 
+> **Adding products:** see [ADDING-PRODUCTS.md](ADDING-PRODUCTS.md). Start with
+> `node scripts/gap-report.mjs` to see what is actually blocking pages.
+
 **End result:** A blazing-fast site where adding a product takes about 30 seconds in a web admin panel — no code, no plugins, no WooCommerce, no maintenance.
 
 ---

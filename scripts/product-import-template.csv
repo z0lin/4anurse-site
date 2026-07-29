@@ -1,0 +1,5 @@
+url_or_asin,title,price,image,brand,type,occasion,recipient
+https://www.amazon.com/dp/B0EXAMPLE1,"Example: paste the full Amazon URL or just the ASIN — both work",24.99,https://m.media-amazon.com/images/I/EXAMPLE.jpg,BrandName,,,
+B0EXAMPLE2,"Example: type/occasion/recipient left blank means the classifier decides",89.99,https://m.media-amazon.com/images/I/EXAMPLE2.jpg,,,,
+B0EXAMPLE3,"Example: override the classifier by filling those columns in",149.00,https://m.media-amazon.com/images/I/EXAMPLE3.jpg,MDF,stethoscopes,graduation,student
+B0EXAMPLE4,"Example: multiple facet values are semicolon-separated",34.99,https://m.media-amazon.com/images/I/EXAMPLE4.jpg,,jewelry,graduation;nurses-week,student;np
