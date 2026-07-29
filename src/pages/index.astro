@@ -4,8 +4,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 import { buildAmazonUrl } from '../lib/taxonomy';
 
-/** Newest products shown on the homepage. */
-const HOMEPAGE_PRODUCTS = 24;
+/**
+ * Products server-rendered into the HTML.
+ *
+ * The rest stream in via /api/products.json on scroll. This page once rendered
+ * the entire 190-product catalog inline (169 KB, 195 images) — and still stopped
+ * at 190. Browsing depth is the point of a gift site, so the grid now runs
+ * indefinitely; the initial batch just keeps the document small.
+ *
+ * Kept deliberately stable and newest-first rather than shuffled: this is what
+ * crawlers index, and randomising it would make the page's indexed content
+ * different on every fetch. Randomisation happens client-side, after hydration.
+ */
+const INITIAL_PRODUCTS = 24;
 
 const allProducts = await getCollection('products');
 const featured = allProducts
@@ -13,12 +24,11 @@ const featured = allProducts
   .sort((a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf())
   .slice(0, 4);
 
-// This page rendered the ENTIRE 190-product catalog — 169 KB and 195 images on
-// the site's most important document. Trimmed to the newest slice; every product
-// remains reachable (and indexed) via its category page, so nothing is orphaned.
 const sorted = [...allProducts]
   .sort((a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf())
-  .slice(0, HOMEPAGE_PRODUCTS);
+  .slice(0, INITIAL_PRODUCTS);
+
+const catalogSize = allProducts.length;
 
 // Derived from the categories collection rather than hardcoded. The previous
 // hardcoded list still held the old 9 categories, so the homepage never linked
@@ -79,8 +89,15 @@ const categories = (await getCollection('categories'))
   </div>
 
   <div class="section-header" style="margin-top: 2.5rem;">
-    <h2>Latest picks</h2>
-    <p>The {sorted.length} newest additions. <a href="/gifts/">See all gifts →</a></p>
+    <h2>Gift ideas, endlessly</h2>
+    <p>
+      Keep scrolling — {catalogSize} hand-picked ideas, shuffled fresh every visit.
+      <button
+        type="button"
+        id="shuffle-btn"
+        style="margin-left: 0.5rem; background: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.2rem 0.75rem; cursor: pointer; font: inherit; font-size: 0.9rem;"
+      >Shuffle ↻</button>
+    </p>
   </div>
 
   <div class="product-grid" id="product-grid">
@@ -109,10 +126,183 @@ const categories = (await getCollection('categories'))
     ))}
   </div>
 
+  <div id="scroll-sentinel" style="height: 1px;"></div>
+
   <!--
-    The client-side category filter was removed with the full-catalog dump.
-    Filtering a 24-product slice would silently hide most of a category's stock
-    and imply the homepage held everything; the category links above go to the
-    real pages, which have the complete set plus their own copy and FAQs.
+    A real button, not scroll-only loading. Infinite scroll on its own is
+    unreachable by keyboard and invisible to screen readers; the observer simply
+    clicks this, so pointer, keyboard and assistive tech all get the same path.
   -->
+  <div style="text-align: center; padding: 2rem 1.5rem 3rem;">
+    <button
+      type="button"
+      id="load-more"
+      style="background: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.6rem 1.5rem; cursor: pointer; font: inherit;"
+    >Load more gift ideas</button>
+    <p id="scroll-status" style="color: var(--color-muted); margin-top: 0.75rem; font-size: 0.95rem;" aria-live="polite"></p>
+  </div>
+
+  <noscript>
+    <p style="text-align: center; padding: 0 1.5rem 2rem;">
+      <a href="/gifts/">Browse all gift categories →</a>
+    </p>
+  </noscript>
+
+  <!--
+    Endless shuffled grid.
+
+    The catalog JSON is fetched on FIRST SCROLL, not on load, so the initial
+    document stays ~29 KB. Cards are built to match the server-rendered markup
+    exactly — same classes, same width/height (the CLS fix), and the same
+    rel="nofollow sponsored noopener" that affiliate links require.
+  -->
+  <script is:inline define:vars={{ initialAsins: sorted.map((p) => p.data.asin) }}>
+    (function () {
+      const grid = document.getElementById('product-grid');
+      const sentinel = document.getElementById('scroll-sentinel');
+      const status = document.getElementById('scroll-status');
+      const shuffleBtn = document.getElementById('shuffle-btn');
+      const loadMoreBtn = document.getElementById('load-more');
+      if (!grid || !loadMoreBtn) return;
+
+      const BATCH = 24;
+      let catalog = null;
+      let queue = [];
+      let loading = false;
+      let passes = 0;
+
+      // Fisher-Yates. Unbiased, unlike sort(() => Math.random() - 0.5).
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function card(p) {
+        const article = document.createElement('article');
+        article.className = 'product-card';
+        const a = document.createElement('a');
+        a.href = p.u;
+        a.target = '_blank';
+        a.rel = 'nofollow sponsored noopener';
+
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'product-image';
+        const img = document.createElement('img');
+        img.src = p.i;
+        img.alt = p.t;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.width = 300;
+        img.height = 300;
+        imgWrap.appendChild(img);
+
+        const info = document.createElement('div');
+        info.className = 'product-info';
+        const h3 = document.createElement('h3');
+        h3.className = 'product-title';
+        h3.textContent = p.t;
+        info.appendChild(h3);
+
+        const meta = document.createElement('div');
+        meta.className = 'product-meta';
+        if (p.p) {
+          const price = document.createElement('span');
+          price.className = 'product-price';
+          price.textContent = p.p;
+          meta.appendChild(price);
+        }
+        info.appendChild(meta);
+
+        const cta = document.createElement('span');
+        cta.className = 'product-cta';
+        cta.textContent = 'View on Amazon';
+        info.appendChild(cta);
+
+        a.appendChild(imgWrap);
+        a.appendChild(info);
+        article.appendChild(a);
+        return article;
+      }
+
+      function refill() {
+        passes++;
+        // First pass skips what the server already rendered, so nothing repeats
+        // immediately. Later passes reshuffle the whole catalog — that is what
+        // makes it endless rather than stopping at the catalog size.
+        const pool = passes === 1
+          ? catalog.filter((p) => !initialAsins.includes(p.a))
+          : catalog;
+        queue = shuffle(pool);
+      }
+
+      async function loadCatalog() {
+        const res = await fetch('/api/products.json');
+        if (!res.ok) throw new Error('catalog fetch failed: ' + res.status);
+        catalog = await res.json();
+        refill();
+      }
+
+      async function appendBatch() {
+        if (loading) return;
+        loading = true;
+        try {
+          if (!catalog) {
+            status.textContent = 'Loading more gift ideas…';
+            await loadCatalog();
+          }
+          if (!queue.length) refill();
+
+          const frag = document.createDocumentFragment();
+          for (const p of queue.splice(0, BATCH)) frag.appendChild(card(p));
+          grid.appendChild(frag);
+
+          status.textContent = passes > 1 ? 'Reshuffling for more ideas…' : '';
+        } catch (err) {
+          // Never leave the user staring at a dead spinner.
+          status.innerHTML =
+            'Couldn’t load more right now. <a href="/gifts/">Browse all categories →</a>';
+          loadMoreBtn.hidden = true;
+          if (observer) observer.disconnect();
+        } finally {
+          loading = false;
+        }
+      }
+
+      loadMoreBtn.addEventListener('click', appendBatch);
+
+      // The observer is progressive enhancement on top of the button: it clicks
+      // it as the sentinel nears the viewport, so scrolling feels endless while
+      // the button remains the single code path.
+      let observer = null;
+      if ('IntersectionObserver' in window && sentinel) {
+        observer = new IntersectionObserver(
+          (entries) => { if (entries.some((e) => e.isIntersecting)) loadMoreBtn.click(); },
+          { rootMargin: '600px' }
+        );
+        observer.observe(sentinel);
+      }
+
+      if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', async () => {
+          shuffleBtn.disabled = true;
+          try {
+            if (!catalog) await loadCatalog();
+            // Full reshuffle including the server-rendered set, so the button
+            // does what it says rather than just appending.
+            passes = 2;
+            queue = shuffle(catalog);
+            grid.replaceChildren();
+            await appendBatch();
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } finally {
+            shuffleBtn.disabled = false;
+          }
+        });
+      }
+    })();
+  </script>
 </BaseLayout>
