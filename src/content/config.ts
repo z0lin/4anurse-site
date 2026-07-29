@@ -1,13 +1,46 @@
 import { defineCollection, z } from 'astro:content';
+import { TYPE_TAGS, OCCASION_TAGS, RECIPIENT_TAGS } from '../lib/taxonomy';
+
+const tuple = (a: string[]) => a as [string, ...string[]];
 
 const products = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+
+    // ── Primary key ──────────────────────────────────────────────────────────
+    // Everything derives from the ASIN. Storing it (rather than a full URL)
+    // guarantees the affiliate tag is always present and correct, makes
+    // duplicate detection trivial, and gives the ingestion pipeline a stable
+    // key. Build links with buildAmazonUrl() from src/lib/taxonomy.ts.
+    asin: z.string().regex(/^[A-Z0-9]{10}$/, 'Must be a 10-character Amazon ASIN'),
+
     image: z.string(),
+
+    // LEGACY. Superseded by `asin` + buildAmazonUrl(). Retained until Phase 3
+    // migrates the components; do not add new links here.
     amazonUrl: z.string().url(),
-    price: z.string().optional(), // e.g. "$24.99"
-    priceValue: z.number().optional(), // numeric for filtering, e.g. 24.99
+
+    price: z.string().optional(), // display string, e.g. "$24.99"
+
+    // Required: powers every price-band facet. An item without it would
+    // silently vanish from /gifts/under-25/ and friends.
+    priceValue: z.number(),
+
+    // Set by the daily PA-API refresh job (Phase 6) so staleness is visible.
+    priceUpdated: z.date().optional(),
+    availability: z.enum(['in_stock', 'out_of_stock', 'dead']).optional(),
+
+    // ── Faceted taxonomy ─────────────────────────────────────────────────────
+    // `type` is what the product IS. `occasion` and `recipient` are separate
+    // facets because a single enum could not express "graduation + jewelry +
+    // under $25" — which is why `accessories` had absorbed 41% of the catalog.
+    type: z.enum(tuple(TYPE_TAGS)),
+    occasion: z.array(z.enum(tuple(OCCASION_TAGS))).default([]),
+    recipient: z.array(z.enum(tuple(RECIPIENT_TAGS))).default([]),
+
+    // LEGACY. Still keys the `categories` and `hubs` collections and the
+    // /gifts/[category]/ route. Phase 3 switches those to `type` and drops it.
     category: z.enum([
       'graduation',
       'apparel',
@@ -20,6 +53,7 @@ const products = defineCollection({
       'self-care',
       'other'
     ]).default('other'),
+
     featured: z.boolean().default(false),
     featuredBadge: z.string().optional(), // e.g. "Top Pick", "Best Value", "Grad Gift"
     blurb: z.string().optional(), // short "why we love it" sentence
