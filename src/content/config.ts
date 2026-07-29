@@ -17,8 +17,12 @@ const products = defineCollection({
 
     image: z.string(),
 
-    // LEGACY. Superseded by `asin` + buildAmazonUrl(). Retained until Phase 3
-    // migrates the components; do not add new links here.
+    // Populated by the ingestion pipeline from PA-API ByLineInfo. Without this
+    // field declared, Zod silently DROPS it and the data is lost on every write.
+    brand: z.string().optional(),
+
+    // LEGACY. Superseded by `asin` + buildAmazonUrl(). Every template now uses
+    // buildAmazonUrl(asin); this remains only so existing content validates.
     amazonUrl: z.string().url(),
 
     price: z.string().optional(), // display string, e.g. "$24.99"

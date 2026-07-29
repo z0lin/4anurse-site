@@ -1,0 +1,77 @@
+name: Daily catalog refresh
+
+# Keeps displayed prices current (a PA-API requirement) and picks up rotated
+# Amazon image URLs, which a static site cannot otherwise notice going stale.
+#
+# Opens a PR rather than pushing to main. A direct push would deploy unreviewed
+# price changes straight to production; a PR keeps the daily diff visible and
+# still merges in one click. Enable auto-merge on the repo if you want it hands-off.
+#
+# Requires repository secrets: PAAPI_ACCESS_KEY, PAAPI_SECRET_KEY
+# The job no-ops with a clear message until those exist.
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # 09:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report changes without writing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Check PA-API credentials
+        id: creds
+        env:
+          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
+        run: |
+          if [ -z "$PAAPI_ACCESS_KEY" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::PA-API credentials not set — skipping refresh."
+            echo "::notice::Add PAAPI_ACCESS_KEY and PAAPI_SECRET_KEY as repository secrets to enable."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refresh catalog
+        if: steps.creds.outputs.configured == 'true'
+        env:
+          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
+          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
+        run: |
+          node scripts/refresh-catalog.mjs ${{ inputs.dry_run && '--dry-run' || '' }} | tee refresh.log
+
+      # Build BEFORE opening a PR: the schema and thin-page guards run at build
+      # time, so a refresh that drops a facet below its threshold fails here
+      # instead of on main.
+      - name: Verify build
+        if: steps.creds.outputs.configured == 'true'
+        run: npm run build
+
+      - name: Open PR with refreshed prices
+        if: steps.creds.outputs.configured == 'true' && !inputs.dry_run
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore: daily catalog refresh (prices, availability, image URLs)'
+          branch: automation/catalog-refresh
+          delete-branch: true
+          title: 'Daily catalog refresh'
+          body-path: refresh.log
+          labels: automation

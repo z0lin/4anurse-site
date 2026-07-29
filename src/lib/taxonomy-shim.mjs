@@ -9,3 +9,10 @@ export function priceBand(priceValue) {
   }
   return undefined;
 }
+
+/** Mirrors AFFILIATE_TAG in taxonomy.ts. Keep the two in sync. */
+export const AFFILIATE_TAG = '4anurse05-20';
+
+export function buildAmazonUrl(asin) {
+  return `https://www.amazon.com/dp/${asin}/?tag=${AFFILIATE_TAG}`;
+}

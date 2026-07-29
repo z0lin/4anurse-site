@@ -2,6 +2,15 @@
 """
 add-products.py — Fetch Amazon products by ASIN and write Astro product files.
 
+SUPERSEDED by scripts/ingest.mjs. This script writes the OLD schema — no `asin`
+field, and the retired 10-value category enum — so files it produces now FAIL
+content validation at build time. Its SigV4 implementation was the reference for
+scripts/lib/paapi.mjs; kept for that provenance. Use:
+
+    node scripts/ingest.mjs --stage <ASIN...>
+    node scripts/ingest.mjs --review
+    node scripts/ingest.mjs --commit --approve-all
+
 Usage:
     python3 add-products.py B01ABCDEF B02GHIJKL ...
     python3 add-products.py --file asins.txt
