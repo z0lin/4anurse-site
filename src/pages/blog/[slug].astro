@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildAmazonUrl } from '../../lib/taxonomy';
+import { matchProducts, popularProducts, relatedCategories, matchHubs } from '../../lib/match.mjs';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -15,10 +17,30 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 
-// Gift category pages to link to from every post (content -> commercial internal linking)
-const giftCategories = (await getCollection('categories')).sort((a, b) =>
-  a.data.label.localeCompare(b.data.label)
-);
+/**
+ * Product placement is computed at BUILD TIME from the post's title,
+ * description and category — no markdown is edited. That is what makes it
+ * possible to monetize 320 existing posts in one change, and it means every
+ * product added later shows up in every relevant older post automatically.
+ */
+const allCategories = await getCollection('categories');
+const allProducts = await getCollection('products');
+const allHubs = await getCollection('hubs');
+
+const matched = matchProducts({ ...post.data, slug: post.slug }, allProducts, 6);
+
+// Posts about the idea of gifting rather than a product category get featured
+// products under an honestly different heading, instead of a forced match.
+const isMatched = matched.length > 0;
+// Seeded by slug so fallback posts don't all render an identical block.
+const shopProducts = isMatched ? matched : popularProducts(allProducts, 6, post.slug);
+
+// Internal links derived from what actually matched, replacing the old block
+// that linked all 9 categories from every post regardless of subject. Fallback
+// posts derive theirs from the rotated product set, so those vary too.
+const giftCategories = relatedCategories(shopProducts, allCategories, 4);
+
+const relatedHubs = matchHubs({ ...post.data, slug: post.slug }, allHubs, 3);
 
 // Pick up to 3 related posts (same category, fallback to recent)
 const allPosts = (await getCollection('blog')).filter(
@@ -106,12 +128,46 @@ const articleSchema = {
     <Content />
   </article>
 
-  {giftCategories.length > 0 && (
+  {shopProducts.length > 0 && (
     <section style="max-width: 1100px; margin: 3rem auto 0; padding: 3rem 1.5rem 0; border-top: 1px solid var(--color-border);">
-      <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Shop nurse gifts by category</h2>
+      <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">
+        {isMatched ? 'Shop the picks in this guide' : 'Popular nurse gifts'}
+      </h2>
+      <p style="color: var(--color-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
+        {isMatched
+          ? 'Hand-picked products related to this guide. As an Amazon Associate we earn from qualifying purchases.'
+          : 'Reader favourites from our gift collection. As an Amazon Associate we earn from qualifying purchases.'}
+      </p>
+      <div class="product-grid">
+        {shopProducts.map((product) => (
+          <article class="product-card">
+            <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
+              <div class="product-image">
+                <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" width="300" height="300" />
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">{product.data.title}</h3>
+                <div class="product-meta">
+                  {product.data.price && <span class="product-price">{product.data.price}</span>}
+                </div>
+                <span class="product-cta">View on Amazon</span>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {(giftCategories.length > 0 || relatedHubs.length > 0) && (
+    <section style="max-width: 1100px; margin: 2.5rem auto 0; padding: 0 1.5rem;">
+      <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Browse related gifts</h2>
       <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
         {giftCategories.map((c) => (
           <a class="tag" href={`/gifts/${c.slug}/`} style="text-decoration: none;">{c.data.label}</a>
+        ))}
+        {relatedHubs.map((h) => (
+          <a class="tag" href={`/${h.slug}/`} style="text-decoration: none;">{h.data.breadcrumbLabel}</a>
         ))}
       </div>
     </section>

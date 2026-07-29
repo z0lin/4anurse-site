@@ -16,7 +16,7 @@
  */
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { classify } from './classify.mjs';
+import { classify } from '../src/lib/classify.mjs';
 
 const DIR = 'src/content/products';
 const AFFILIATE_TAG = '4anurse05-20';
