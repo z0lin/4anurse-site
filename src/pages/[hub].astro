@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildAmazonUrl } from '../lib/taxonomy';
 
 export async function getStaticPaths() {
   const hubs = await getCollection('hubs');
@@ -50,7 +51,7 @@ const itemListSchema = products.length
         '@type': 'ListItem',
         position: i + 1,
         name: p.data.title,
-        url: p.data.amazonUrl,
+        url: buildAmazonUrl(p.data.asin),
       })),
     }
   : null;
@@ -91,9 +92,9 @@ const faqSchema = hub.data.faq?.length
     <div class="product-grid">
       {products.map((product) => (
         <article class="product-card">
-          <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+          <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
             <div class="product-image">
-              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" />
+              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" width="300" height="300" />
             </div>
             <div class="product-info">
               <h3 class="product-title">{product.data.title}</h3>
@@ -115,7 +116,7 @@ const faqSchema = hub.data.faq?.length
         {relatedPosts.map((r) => (
           <a class="post-card" href={`/blog/${r.slug}/`}>
             <div class="post-card-image">
-              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" />
+              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" decoding="async" width="400" height="225" />
             </div>
             {r.data.category && <span class="tag">{r.data.category}</span>}
             <h3>{r.data.title}</h3>

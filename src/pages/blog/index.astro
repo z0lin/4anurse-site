@@ -1,13 +1,20 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { POSTS_PER_PAGE, pageHref, totalPages } from '../../lib/pagination';
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const featuredPost = posts.find((p) => p.data.featured) ?? posts[0];
-const recentPosts = posts.filter((p) => p.slug !== featuredPost?.slug);
+
+// This page rendered all 319 post cards and 321 images — 194 KB, the heaviest
+// document on the site. Paginated to POSTS_PER_PAGE; the rest live under
+// /blog/page/N/. Every post stays in the sitemap, so nothing is deindexed.
+const rest = posts.filter((p) => p.slug !== featuredPost?.slug);
+const recentPosts = rest.slice(0, POSTS_PER_PAGE);
+const pageCount = totalPages(rest.length);
 
 function fmtDate(d: Date) {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -31,6 +38,9 @@ function fmtDate(d: Date) {
             src={featuredPost.data.heroImage || '/images/blog-placeholder.svg'}
             alt={featuredPost.data.title}
             loading="eager"
+            decoding="async"
+            width="800"
+            height="450"
           />
         </div>
         <div class="featured-post-content">
@@ -57,6 +67,9 @@ function fmtDate(d: Date) {
                 src={post.data.heroImage || '/images/blog-placeholder.svg'}
                 alt={post.data.title}
                 loading="lazy"
+                decoding="async"
+                width="400"
+                height="225"
               />
             </div>
             {post.data.category && <span class="tag">{post.data.category}</span>}
@@ -69,6 +82,23 @@ function fmtDate(d: Date) {
           </a>
         ))}
       </div>
+
+      {pageCount > 1 && (
+        <nav class="pagination" aria-label="Blog pages" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 2.5rem;">
+          <span style="color: var(--color-muted); font-size: 0.95rem;">Page 1 of {pageCount}</span>
+          {Array.from({ length: pageCount }, (_, i) => i + 1)
+            .filter((n) => n <= 5 || n === pageCount)
+            .map((n) => (
+              <a
+                class="tag"
+                href={pageHref(n)}
+                aria-current={n === 1 ? 'page' : undefined}
+                style={`text-decoration: none;${n === 1 ? ' font-weight: 600;' : ''}`}
+              >{n}</a>
+            ))}
+          <a class="tag" href={pageHref(2)} style="text-decoration: none;" rel="next">Next →</a>
+        </nav>
+      )}
     </section>
   )}
 

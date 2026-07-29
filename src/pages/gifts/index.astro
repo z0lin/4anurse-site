@@ -115,7 +115,7 @@ const itemListSchema = {
         {popular.map((r) => (
           <a class="post-card" href={`/blog/${r.slug}/`}>
             <div class="post-card-image">
-              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" />
+              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" decoding="async" width="400" height="225" />
             </div>
             {r.data.category && <span class="tag">{r.data.category}</span>}
             <h3>{r.data.title}</h3>

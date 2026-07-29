@@ -1,0 +1,99 @@
+---
+/**
+ * Paginated blog index: /blog/page/2/ onward.
+ *
+ * Page 1 stays at /blog/ (blog/index.astro) so that URL is untouched. This route
+ * deliberately starts at 2 — see src/lib/pagination.ts for why pagination is
+ * nested under /page/ instead of using Astro's default /blog/2/ shape.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { POSTS_PER_PAGE, pageHref, totalPages } from '../../../lib/pagination';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog'))
+    .filter((p) => !p.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  const featured = posts.find((p) => p.data.featured) ?? posts[0];
+  const rest = posts.filter((p) => p.slug !== featured?.slug);
+  const pageCount = totalPages(rest.length);
+
+  // Start at 2: page 1 is /blog/.
+  return Array.from({ length: pageCount - 1 }, (_, i) => i + 2).map((n) => ({
+    params: { page: String(n) },
+    props: {
+      posts: rest.slice((n - 1) * POSTS_PER_PAGE, n * POSTS_PER_PAGE),
+      current: n,
+      pageCount,
+    },
+  }));
+}
+
+const { posts, current, pageCount } = Astro.props;
+
+function fmtDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<BaseLayout
+  title={`Blog – Page ${current} of ${pageCount} – 4aNurse`}
+  description="Gift guides, nursing stories, and ideas for showing appreciation."
+  robots="noindex, follow"
+>
+
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>›</span><a href="/blog/">Blog</a><span>›</span>Page {current}
+  </nav>
+
+  <section class="blog-hero">
+    <h1>The Blog</h1>
+    <p>Page {current} of {pageCount}</p>
+  </section>
+
+  <section class="posts-section">
+    <div class="posts-grid">
+      {posts.map((post) => (
+        <a class="post-card" href={`/blog/${post.slug}`}>
+          <div class="post-card-image">
+            <img
+              src={post.data.heroImage || '/images/blog-placeholder.svg'}
+              alt={post.data.title}
+              loading="lazy"
+              decoding="async"
+              width="400"
+              height="225"
+            />
+          </div>
+          {post.data.category && <span class="tag">{post.data.category}</span>}
+          <h3>{post.data.title}</h3>
+          <p>{post.data.description}</p>
+          <div class="post-meta">
+            <span>{fmtDate(post.data.pubDate)}</span>
+            {post.data.readTime && <span class="read-time">{post.data.readTime}</span>}
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <nav class="pagination" aria-label="Blog pages" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 2.5rem;">
+      {current > 1 && (
+        <a class="tag" href={pageHref(current - 1)} style="text-decoration: none;" rel="prev">← Previous</a>
+      )}
+      {Array.from({ length: pageCount }, (_, i) => i + 1)
+        .filter((n) => Math.abs(n - current) <= 2 || n === 1 || n === pageCount)
+        .map((n) => (
+          <a
+            class="tag"
+            href={pageHref(n)}
+            aria-current={n === current ? 'page' : undefined}
+            style={`text-decoration: none;${n === current ? ' font-weight: 600;' : ''}`}
+          >{n}</a>
+        ))}
+      {current < pageCount && (
+        <a class="tag" href={pageHref(current + 1)} style="text-decoration: none;" rel="next">Next →</a>
+      )}
+    </nav>
+  </section>
+</BaseLayout>

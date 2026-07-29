@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildAmazonUrl } from '../lib/taxonomy';
 
 const giftCategories = (await getCollection('categories')).sort((a, b) =>
   a.data.label.localeCompare(b.data.label)
@@ -25,7 +26,7 @@ const itemListSchema = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
   name: 'Nurse Gifts Under $50',
-  itemListElement: products.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.data.title, url: p.data.amazonUrl })),
+  itemListElement: products.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.data.title, url: buildAmazonUrl(p.data.asin) })),
 };
 const faq = [
   { q: 'What is a good gift for a nurse under $50?', a: 'Under $50 opens up nicer picks: a premium insulated tumbler, a quality 6-pack of compression socks, personalized jewelry or a custom sweatshirt, a self-care or spa set, and upgraded accessories. It is a sweet spot for a thoughtful gift that still feels generous.' },
@@ -53,8 +54,8 @@ const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEn
   <div class="product-grid">
     {products.map((product) => (
       <article class="product-card">
-        <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
-          <div class="product-image"><img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" /></div>
+        <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
+          <div class="product-image"><img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" width="300" height="300" /></div>
           <div class="product-info">
             <h3 class="product-title">{product.data.title}</h3>
             <div class="product-meta">{product.data.price && <span class="product-price">{product.data.price}</span>}</div>
