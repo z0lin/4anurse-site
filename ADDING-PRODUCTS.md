@@ -28,10 +28,32 @@ unblock `/gifts/for/icu/`.
 
 ---
 
-## Method 1 — CSV bulk import (works today, no API needed)
+## Method 1 — ASIN Collector bookmarklet (fastest without PA-API)
 
-Best for adding a batch. Copy `scripts/product-import-template.csv`, fill it in
-from a spreadsheet, then:
+Open `/tools/collector.html` on the site and drag the button to your bookmarks
+bar. Then, on any Amazon product page you opened yourself, click it: it reads the
+ASIN, title, price, image and brand off the page, adds them to a running list,
+and puts the whole list on your clipboard as CSV. Click through as many products
+as you like — every click re-copies the full list. Paste into a file and import
+with Method 2.
+
+Roughly 5 seconds per product instead of 45 typing by hand.
+
+**This is not a scraper.** It crawls nothing and fetches nothing — it reads a page
+you deliberately opened in your own browser and writes text to your clipboard.
+Bulk automated collection would breach the Associates agreement and risk the
+affiliate account; this does not.
+
+Amazon's markup varies by category, so if a field cannot be read the toast names
+it. Fill that cell in by hand rather than importing a blank.
+
+Tested by `node scripts/test-collector.mjs` (25 assertions) against synthetic
+markup for both the modern buy-box and legacy layouts.
+
+## Method 2 — CSV bulk import (works today, no API needed)
+
+Takes the collector's output, or a spreadsheet you built by hand. Copy
+`scripts/product-import-template.csv`, fill it in, then:
 
 ```bash
 node scripts/ingest.mjs --import my-products.csv
@@ -58,7 +80,7 @@ image address (an `m.media-amazon.com` URL).
 
 ---
 
-## Method 2 — PA-API (once approved: fastest, and the only complete option)
+## Method 3 — PA-API (once approved: fastest, and the only complete option)
 
 ```bash
 export PAAPI_ACCESS_KEY=...      # or set as GitHub Actions secrets
@@ -90,7 +112,7 @@ API. Requires an approved Associates account with 3 qualifying sales in 180 days
 
 ---
 
-## Method 3 — Decap CMS (one-off edits)
+## Method 4 — Decap CMS (one-off edits)
 
 `/admin/` gives a web form per product. Fine for fixing a title or flipping
 `featured`; slow for bulk work, and it does not run the quality gate.

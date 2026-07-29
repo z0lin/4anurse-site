@@ -85,8 +85,12 @@ function gate(row, seen) {
  */
 export function extractAsin(input) {
   const s = String(input).trim();
-  if (/^[A-Z0-9]{10}$/.test(s)) return s;
-  const m = s.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i);
+  if (/^[A-Z0-9]{10}$/i.test(s)) return s.toUpperCase();
+  // The (?![A-Z0-9]) is load-bearing. Without it an 11-char token silently
+  // matches its first 10 characters, producing a VALID-LOOKING ASIN that points
+  // at a different product — a live affiliate link to the wrong item. Reject
+  // rather than truncate.
+  const m = s.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})(?![A-Z0-9])/i);
   return m ? m[1].toUpperCase() : null;
 }
 
