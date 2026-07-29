@@ -2,28 +2,31 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+import { buildAmazonUrl } from '../lib/taxonomy';
+
+/** Newest products shown on the homepage. */
+const HOMEPAGE_PRODUCTS = 24;
+
 const allProducts = await getCollection('products');
 const featured = allProducts
   .filter((p) => p.data.featured)
   .sort((a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf())
   .slice(0, 4);
 
-const sorted = allProducts.sort(
-  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
-);
+// This page rendered the ENTIRE 190-product catalog — 169 KB and 195 images on
+// the site's most important document. Trimmed to the newest slice; every product
+// remains reachable (and indexed) via its category page, so nothing is orphaned.
+const sorted = [...allProducts]
+  .sort((a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf())
+  .slice(0, HOMEPAGE_PRODUCTS);
 
-const categories = [
-  { id: 'all', label: 'All', link: null },
-  { id: 'graduation', label: 'Graduation', link: '/gifts/graduation/' },
-  { id: 'apparel', label: 'Apparel', link: '/gifts/apparel/' },
-  { id: 'accessories', label: 'Accessories', link: '/gifts/accessories/' },
-  { id: 'drinkware', label: 'Drinkware', link: '/gifts/drinkware/' },
-  { id: 'jewelry', label: 'Jewelry', link: '/gifts/jewelry/' },
-  { id: 'books', label: 'Books', link: '/gifts/books/' },
-  { id: 'home', label: 'Home', link: '/gifts/home/' },
-  { id: 'humor', label: 'Humor', link: '/gifts/humor/' },
-  { id: 'self-care', label: 'Self-Care', link: '/gifts/self-care/' },
-];
+// Derived from the categories collection rather than hardcoded. The previous
+// hardcoded list still held the old 9 categories, so the homepage never linked
+// the 8 type pages added in Phase 3a.
+const categories = (await getCollection('categories'))
+  .filter((c) => !c.data.hideFromHub)
+  .sort((a, b) => a.data.order - b.data.order || a.data.label.localeCompare(b.data.label))
+  .map((c) => ({ label: c.data.label, link: `/gifts/${c.slug}/` }));
 ---
 
 <BaseLayout title="4aNurse – Thoughtful Gift Ideas for Nurses">
@@ -40,12 +43,14 @@ const categories = [
       </div>
       <div class="featured-grid">
         {featured.map((product) => (
-          <a class="featured-card" href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+          <a class="featured-card" href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
             {product.data.featuredBadge && (
               <span class="featured-badge">{product.data.featuredBadge}</span>
             )}
             <div class="product-image">
-              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" />
+              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async"
+              width="300"
+              height="300" />
             </div>
             <div class="product-info">
               <h3 class="product-title">{product.data.title}</h3>
@@ -63,29 +68,25 @@ const categories = [
   <div class="section-divider"><hr /></div>
 
   <div class="section-header">
-    <h2>All Gifts</h2>
-    <p>Tap a category to browse, or scroll through everything below.</p>
+    <h2>Browse by category</h2>
+    <p>Every gift, sorted by what it actually is.</p>
   </div>
 
   <div class="filters" id="filters">
     {categories.map((cat) => (
-      cat.link ? (
-        <a class="filter-btn category-link" href={cat.link}>{cat.label}</a>
-      ) : (
-        <button
-          class={`filter-btn ${cat.id === 'all' ? 'active' : ''}`}
-          data-category={cat.id}
-        >
-          {cat.label}
-        </button>
-      )
+      <a class="filter-btn category-link" href={cat.link}>{cat.label}</a>
     ))}
+  </div>
+
+  <div class="section-header" style="margin-top: 2.5rem;">
+    <h2>Latest picks</h2>
+    <p>The {sorted.length} newest additions. <a href="/gifts/">See all gifts →</a></p>
   </div>
 
   <div class="product-grid" id="product-grid">
     {sorted.map((product) => (
-      <article class="product-card" data-category={product.data.category}>
-        <a href={product.data.amazonUrl} target="_blank" rel="nofollow sponsored noopener">
+      <article class="product-card">
+        <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
           <div class="product-image">
             <img
               src={product.data.image}
@@ -108,23 +109,10 @@ const categories = [
     ))}
   </div>
 
-  <script>
-    const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn[data-category]');
-    const cards = document.querySelectorAll<HTMLElement>('.product-card');
-
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const cat = btn.dataset.category;
-        buttons.forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        cards.forEach((card) => {
-          if (cat === 'all' || card.dataset.category === cat) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
+  <!--
+    The client-side category filter was removed with the full-catalog dump.
+    Filtering a 24-product slice would silently hide most of a category's stock
+    and imply the homepage held everything; the category links above go to the
+    real pages, which have the complete set plus their own copy and FAQs.
+  -->
 </BaseLayout>

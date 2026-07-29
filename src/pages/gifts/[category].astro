@@ -173,7 +173,16 @@ const faqSchema = cat.data.faq?.length ? {
       >
         <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
           <div class="product-image">
-            <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" />
+            <!-- width/height are required to reserve space: without them every
+                 category page shifted layout as remote Amazon images loaded. -->
+            <img
+              src={product.data.image}
+              alt={product.data.title}
+              loading="lazy"
+              decoding="async"
+              width="300"
+              height="300"
+            />
           </div>
           <div class="product-info">
             <h3 class="product-title">{product.data.title}</h3>

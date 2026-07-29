@@ -5,12 +5,20 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  /**
+   * Robots directive. Paginated blog pages pass "noindex, follow": they carry no
+   * unique content, but crawlers should still follow through to the posts.
+   * A `slot="head"` meta tag does NOT work here — this layout has only a default
+   * slot, so the tag would land in the body and be ignored.
+   */
+  robots?: string;
 }
 
 const {
   title,
   description = 'Thoughtful, hand-picked gift ideas for the nurses in your life. Curated by nurses, for nurses.',
   image = '/images/og-default.jpg',
+  robots,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -31,6 +39,7 @@ const websiteSchema = {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/png" href="/Updatedlogo.png" />
   <link rel="canonical" href={canonicalURL} />
+  {robots && <meta name="robots" content={robots} />}
   <link rel="sitemap" href="/sitemap.xml" />
 
   <title>{title}</title>
@@ -55,7 +64,22 @@ const websiteSchema = {
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
+  <!--
+    Loaded off the critical path. As a plain stylesheet this blocked first render
+    on a third-party connection; media="print" + onload swaps it in once fetched.
+    The URL already carries display=swap, so text was always painting in the
+    fallback face first — this changes when the request blocks, not what the user
+    sees. <noscript> keeps it working without JS.
+  -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+    media="print"
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
+  </noscript>
 
   <!-- Privacy-friendly analytics: Plausible (keep your existing one) -->
   <script defer data-domain="4anurse.com" src="https://plausible.io/js/script.js"></script>
@@ -79,7 +103,7 @@ const websiteSchema = {
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="logo"><img src="/4anurselogo.png" alt="4aNurse" height="44" /></a>
+      <a href="/" class="logo"><img src="/4anurselogo.png" alt="4aNurse" width="150" height="44" /></a>
       <nav class="nav">
         <a href="/">Gifts</a>
         <a href="/blog/">Blog</a>

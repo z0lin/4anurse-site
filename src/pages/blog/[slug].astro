@@ -119,6 +119,9 @@ const articleSchema = {
       <img
         src={post.data.heroImage}
         alt={post.data.title}
+        width="960"
+        height="540"
+        decoding="async"
         style="border-radius: var(--radius); aspect-ratio: 16 / 9; object-fit: cover; width: 100%;"
       />
     </div>
@@ -180,7 +183,7 @@ const articleSchema = {
         {related.map((r) => (
           <a class="post-card" href={`/blog/${r.slug}/`}>
             <div class="post-card-image">
-              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" />
+              <img src={r.data.heroImage || '/images/blog-placeholder.svg'} alt={r.data.title} loading="lazy" decoding="async" width="400" height="225" />
             </div>
             {r.data.category && <span class="tag">{r.data.category}</span>}
             <h3>{r.data.title}</h3>
