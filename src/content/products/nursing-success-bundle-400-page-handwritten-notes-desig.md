@@ -6,7 +6,7 @@ amazonUrl: "https://www.amazon.com/dp/B0D545M37L/?tag=4anurse05-20"
 price: "$119.99"
 priceValue: 119.99
 category: books
-type: books
+type: study-guides
 occasion: []
 recipient: [student]
 featured: false
