@@ -18,7 +18,7 @@
   "type": [
     { "tag": "vein-finders",   "label": "Vein Finders",       "any": ["vein finder", "vein viewer", "transillumin", "illumivein", "oncovein", "ledx", "vein mapping"] },
     { "tag": "self-care",      "label": "Self-Care",          "any": ["cosmetic bag", "makeup bag", "hand cream", "hand repair", "eye mask", "under eye", "toiletry", "survival kit", "spa"] },
-    { "tag": "stethoscopes",   "label": "Stethoscopes",       "any": ["stethoscope"], "none": ["holder", "case kit", "name tag", "necklace", "charm", "badge", "hip clip", "clip-on", "notebook", "journal"] },
+    { "tag": "stethoscopes",   "label": "Stethoscopes",       "any": ["stethoscope"], "none": ["holder", "case kit", "name tag", "necklace", "charm", "badge", "hip clip", "clip-on", "notebook", "journal", "lapel pin", "enamel pin", "brooch", "ring", "rings", "earring", "bracelet", "pendant", "keychain", "decal", "sticker", "sweatshirt", "t-shirt", "mug", "tumbler"] },
     { "tag": "badge-reels",    "label": "Badge Reels",        "any": ["badge reel", "badge holder", "badge clip", "badge buddy", "badge scroll", "id badge"] },
     { "tag": "reference-cards","label": "Reference Cards",    "any": ["reference card", "reference guide", "lab value", "badge reference", "pocket reference"], "none": ["clipboard"] },
     { "tag": "clipboards",     "label": "Clipboards",         "any": ["clipboard", "padfolio"] },

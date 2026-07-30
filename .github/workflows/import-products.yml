@@ -98,7 +98,18 @@ jobs:
             source=uploaded
           fi
 
+          # A successful import DELETES imports/*.csv in its PR. Merging that PR is
+          # a push to main touching imports/**.csv, which re-triggers this workflow
+          # — and it then finds nothing to do. That produced a spurious FAILED run
+          # after every successful import, which is alarming and meaningless. Skip
+          # cleanly instead.
           if [ ! -s /tmp/import.csv ]; then
+            if [ "$EVENT" = "push" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "::notice::Nothing to import — imports/ has no .csv files."
+              echo "::notice::Expected right after an import PR merges, since that PR removes the file."
+              exit 0
+            fi
             echo "::error::No CSV content found (nothing pasted, and imports/ has no .csv files)."
             exit 1
           fi
@@ -127,8 +138,11 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "::notice::Importing from $source ($lines line(s)) (approve='$approve')"
 
+      # Every step below is guarded on `skip`: the assemble step exits 0 when there
+      # is nothing to import, so without these they would all still run and fail.
       - name: Stage, review and write products
         id: run
+        if: steps.input.outputs.skip != 'true'
         env:
           APPROVE: ${{ steps.input.outputs.approve }}
         run: |
@@ -155,10 +169,11 @@ jobs:
       # The guards that ingestion does NOT enforce live in the build: content
       # schema, thin-page threshold, parent overlap. Fail here, not on main.
       - name: Verify build
+        if: steps.input.outputs.skip != 'true'
         run: npm run build
 
       - name: Remove processed upload files
-        if: steps.input.outputs.source == 'uploaded'
+        if: steps.input.outputs.skip != 'true' && steps.input.outputs.source == 'uploaded'
         run: |
           rm -f imports/*.csv
           echo "::notice::Cleared imports/*.csv so they are not reprocessed."
@@ -170,6 +185,7 @@ jobs:
       # import is never lost — it just takes one extra click to open the PR.
       - name: Open pull request
         id: pr
+        if: steps.input.outputs.skip != 'true'
         continue-on-error: true
         uses: peter-evans/create-pull-request@v6
         with:
@@ -182,7 +198,7 @@ jobs:
 
       # never let reporting fail the run — the import itself already succeeded
       - name: Summary
-        if: always()
+        if: always() && steps.input.outputs.skip != 'true'
         continue-on-error: true
         env:
           BRANCH: automation/product-import
