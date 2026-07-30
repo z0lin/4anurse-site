@@ -1,5 +1,20 @@
 # Blog backlog
 
+> **This file is consumed automatically.** `.github/workflows/weekly-post.yml`
+> runs every Tuesday at 14:00 UTC, takes the top un-done row of the table below,
+> writes the post, and commits it to `main` — no review step. It then strikes the
+> row through and marks it DONE, so the next run takes the next topic.
+>
+> - **Pause it:** commit a file named `PAUSE-BLOG` in the repo root. The next run
+>   exits cleanly. Delete the file to resume.
+> - **Run it now:** Actions → *Weekly blog post* → *Run workflow*. Tick
+>   **dry_run** to see the post without committing.
+> - **When this table runs dry the automation stops** rather than inventing
+>   topics. That is deliberate — see the gates in `scripts/generate-post.mjs`.
+>
+> Editing this table changes what gets published. Rows under *Blocked on stock*
+> and *Avoid* are never read by the generator.
+
 The blog stopped 2026-04-16 after 320 posts and the old Airtable topic queue is
 exhausted (315/315 marked done). This is the replacement, built from two measured
 inputs rather than brainstorming:
