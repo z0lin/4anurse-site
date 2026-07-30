@@ -54,7 +54,34 @@ function slugify(text) {
     .replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 70);
 }
 
-const yamlStr = (s) => `"${String(s).replace(/"/g, "'")}"`;
+/**
+ * Collapse any whitespace run — including newlines and tabs — to single spaces.
+ *
+ * Amazon byline blocks are multi-line, and a CSV quoted field legitimately
+ * carries those newlines through the parser. Emitting them into YAML frontmatter
+ * produced a quoted scalar spanning several lines: fragile at best, corrupt at
+ * worst. Every value is normalised on the way in.
+ */
+const sanitize = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
+
+/**
+ * Reduce an Amazon byline to just the name.
+ *
+ * Product pages give "Brand". BOOK pages give a multi-line block:
+ *   "by \n  MyNurseNotes.com \n  (Author) \n  Format: Spiral-bound"
+ * so strip the leading "by", then cut at the first role or format marker.
+ */
+function cleanBrand(raw) {
+  let s = sanitize(raw);
+  if (!s) return '';
+  s = s.replace(/^by\s+/i, '');
+  s = s.split(/\s*\((?:Author|Editor|Illustrator|Contributor)\)/i)[0];
+  s = s.split(/\s*Format:/i)[0];
+  s = s.replace(/^Visit the\s+/i, '').replace(/\s+Store$/i, '').replace(/^Brand:\s*/i, '');
+  return s.replace(/[,;]\s*$/, '').trim().slice(0, 80);
+}
+
+const yamlStr = (s) => `"${sanitize(s).replace(/"/g, "'")}"`;
 const yamlList = (a) => (a.length ? `[${a.join(', ')}]` : '[]');
 
 /**
@@ -167,18 +194,18 @@ function importCsv() {
     const asin = extractAsin(raw);
     if (!asin) { console.log(`  row ${n + 2}: SKIP — no ASIN in "${raw.slice(0, 40)}"`); continue; }
 
-    const title = (r[cols.title] ?? '').trim();
-    const priceStr = (r[cols.price] ?? '').trim();
+    const title = sanitize(r[cols.title]);
+    const priceStr = sanitize(r[cols.price]);
     const priceValue = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
     const splitList = (i) =>
       i >= 0 && r[i] ? r[i].split(';').map((x) => x.trim()).filter(Boolean) : null;
 
-    const auto = classify(title, null);
+    const auto = classify(title, null, asin);
     const row = {
       asin,
       title,
-      brand: cols.brand >= 0 ? (r[cols.brand] ?? '').trim() : '',
-      image: (r[cols.image] ?? '').trim(),
+      brand: cols.brand >= 0 ? cleanBrand(r[cols.brand]) : '',
+      image: sanitize(r[cols.image]),
       price: priceStr.startsWith('$') ? priceStr : `$${priceStr}`,
       priceValue: Number.isFinite(priceValue) ? priceValue : null,
       availability: 'in_stock',

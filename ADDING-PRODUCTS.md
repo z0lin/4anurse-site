@@ -33,9 +33,8 @@ unblock `/gifts/for/icu/`.
 Open `/tools/collector.html` on the site and drag the button to your bookmarks
 bar. Then, on any Amazon product page you opened yourself, click it: it reads the
 ASIN, title, price, image and brand off the page, adds them to a running list,
-and puts the whole list on your clipboard as CSV. Click through as many products
-as you like — every click re-copies the full list. Paste into a file and import
-with Method 2 or 3.
+and puts it on your clipboard, and offers a **Download CSV** button. Click through
+as many products as you like, then download the file and use Method 2.
 
 Roughly 5 seconds per product instead of 45 typing by hand.
 
@@ -52,14 +51,21 @@ markup for both the modern buy-box and legacy layouts.
 
 ## Method 2 — Upload the CSV on GitHub (no local setup at all)
 
-Easiest route if you do not want to touch a terminal. Either:
+**Upload the file** — the reliable route. Drop a `.csv` into [`imports/`](imports/)
+using GitHub's **Add file → Upload files** and commit. The workflow picks it up
+automatically and deletes the processed file in the same PR, so `imports/` stays
+clean.
 
-- **Paste it.** Actions → *Import products from CSV* → **Run workflow** → paste
-  into the box. The bookmarklet already left the CSV on your clipboard, so this
-  is usually paste-and-go.
-- **Upload it.** Drop a `.csv` into [`imports/`](imports/) using GitHub's
-  **Add file → Upload files** and commit. The workflow picks it up automatically
-  and deletes the processed file in the same PR, so `imports/` stays clean.
+> **The "paste CSV" box only works for a single row.** `workflow_dispatch` inputs
+> are single-line fields — GitHub has no textarea input type — so a multi-row paste
+> is truncated at the first newline and only the header arrives. The workflow now
+> detects that and says so instead of failing obscurely.
+>
+> To paste multiple rows anyway, base64 it first and paste the one-line result:
+> ```bash
+> base64 -w0 products.csv     # macOS: base64 products.csv | tr -d '\n'
+> ```
+> The workflow detects base64 and decodes it.
 
 Either way the workflow classifies the rows, runs the quality gate, **verifies the
 build**, and opens a **pull request** — never a direct push. The full import log

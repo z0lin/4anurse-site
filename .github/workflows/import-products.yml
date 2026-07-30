@@ -60,6 +60,31 @@ jobs:
           if [ -n "${PASTED:-}" ]; then
             printf '%s\n' "$PASTED" > /tmp/import.csv
             source=pasted
+
+            # The workflow_dispatch form is a SINGLE-LINE input — there is no
+            # textarea type — so a multi-row CSV pasted into it loses everything
+            # after the first newline. Two mitigations:
+            #   1. accept base64, which survives a one-line paste intact
+            #   2. detect the truncated case and say so, instead of the useless
+            #      "header but no data rows"
+            if grep -qiE '^[A-Za-z0-9+/=[:space:]]+$' /tmp/import.csv \
+               && ! grep -qi 'url_or_asin' /tmp/import.csv; then
+              if base64 -d < /tmp/import.csv > /tmp/decoded.csv 2>/dev/null \
+                 && grep -qi 'url_or_asin' /tmp/decoded.csv; then
+                mv /tmp/decoded.csv /tmp/import.csv
+                source=pasted-base64
+                echo "::notice::Input was base64; decoded it."
+              fi
+            fi
+
+            if [ "$(wc -l < /tmp/import.csv)" -le 1 ] && grep -qi 'url_or_asin' /tmp/import.csv; then
+              echo "::error::Only the header row arrived. The paste box is a single-line"
+              echo "::error::field, so multi-row CSV gets truncated at the first newline."
+              echo "::error::Use one of these instead:"
+              echo "::error::  - upload the .csv into imports/ (Add file -> Upload files)"
+              echo "::error::  - or base64 the CSV and paste that single line here"
+              exit 1
+            fi
           else
             # Concatenate every CSV under imports/, keeping only the first header.
             first=1
@@ -78,9 +103,12 @@ jobs:
             exit 1
           fi
 
-          rows=$(( $(wc -l < /tmp/import.csv) - 1 ))
-          if [ "$rows" -lt 1 ]; then
-            echo "::error::CSV has a header but no data rows."
+          # Physical lines, NOT CSV rows: a quoted field may legitimately span
+          # several lines (Amazon book bylines do). The import log reports the
+          # real row count, so this is only a sanity floor.
+          lines=$(( $(wc -l < /tmp/import.csv) - 1 ))
+          if [ "$lines" -lt 1 ]; then
+            echo "::error::CSV has a header but no data."
             exit 1
           fi
 
@@ -94,10 +122,10 @@ jobs:
 
           {
             echo "source=$source"
-            echo "rows=$rows"
+            echo "rows=$lines"
             echo "approve=$approve"
           } >> "$GITHUB_OUTPUT"
-          echo "::notice::Importing $rows row(s) from $source (approve='$approve')"
+          echo "::notice::Importing from $source ($lines line(s)) (approve='$approve')"
 
       - name: Stage, review and write products
         id: run
@@ -152,15 +180,17 @@ jobs:
           body-path: /tmp/import.log
           labels: automation, content
 
+      # never let reporting fail the run — the import itself already succeeded
       - name: Summary
         if: always()
+        continue-on-error: true
         env:
           BRANCH: automation/product-import
         run: |
           {
             echo "## Import complete"
             echo ""
-            echo "- rows submitted: **${{ steps.input.outputs.rows }}**"
+            echo "- input lines: **${{ steps.input.outputs.rows }}** (see log for actual row count)"
             echo "- products written: **${{ steps.run.outputs.written }}**"
             echo ""
             if [ "${{ steps.pr.outcome }}" = "success" ] && [ -n "${{ steps.pr.outputs.pull-request-url }}" ]; then
@@ -179,5 +209,6 @@ jobs:
               echo "Allow GitHub Actions to create and approve pull requests*."
             fi
             echo ""
-            cat /tmp/import.log
+            # guard: the log does not exist if the assemble step failed first
+            [ -f /tmp/import.log ] && cat /tmp/import.log
           } >> "$GITHUB_STEP_SUMMARY"

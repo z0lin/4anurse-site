@@ -53,7 +53,7 @@ function isCredentialStuffed(text) {
  * @returns {{type: string|null, occasion: string[], recipient: string[],
  *            matchedBy: string, stuffed: boolean}}
  */
-export function classify(title, legacyCategory) {
+export function classify(title, legacyCategory, asin) {
   const text = title.toLowerCase().replace(/[‘’“”]/g, "'").replace(/\s+/g, ' ');
 
   // type: single-valued, first match wins (rules are ordered specific -> general)
@@ -66,6 +66,14 @@ export function classify(title, legacyCategory) {
       break;
     }
   }
+  // An all-digit 10-character ASIN is an ISBN, and Amazon only issues those for
+  // books. Catches textbooks whose titles carry no product noun at all, e.g.
+  // "Medical-Surgical Nursing Made Incredibly Easy".
+  if (!type && asin && /^\d{10}$/.test(asin)) {
+    type = 'books';
+    matchedBy = 'isbn';
+  }
+
   // fall back to a mapped legacy category rather than leaving it unclassified
   if (!type && legacyCategory && legacyCategory in rules.typeFallback) {
     const fb = rules.typeFallback[legacyCategory];
