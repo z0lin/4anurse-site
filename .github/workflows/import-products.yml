@@ -135,7 +135,14 @@ jobs:
           rm -f imports/*.csv
           echo "::notice::Cleared imports/*.csv so they are not reprocessed."
 
+      # continue-on-error because PR creation depends on a repo setting we should
+      # not require: Settings -> Actions -> General -> "Allow GitHub Actions to
+      # create and approve pull requests". If it is off, the branch is still
+      # pushed and the summary below links straight to the compare view, so the
+      # import is never lost — it just takes one extra click to open the PR.
       - name: Open pull request
+        id: pr
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: 'content: import ${{ steps.run.outputs.written }} product(s) from CSV'
@@ -146,6 +153,9 @@ jobs:
           labels: automation, content
 
       - name: Summary
+        if: always()
+        env:
+          BRANCH: automation/product-import
         run: |
           {
             echo "## Import complete"
@@ -153,7 +163,21 @@ jobs:
             echo "- rows submitted: **${{ steps.input.outputs.rows }}**"
             echo "- products written: **${{ steps.run.outputs.written }}**"
             echo ""
-            echo "Review the pull request, then merge to deploy."
+            if [ "${{ steps.pr.outcome }}" = "success" ] && [ -n "${{ steps.pr.outputs.pull-request-url }}" ]; then
+              echo "**Pull request:** ${{ steps.pr.outputs.pull-request-url }}"
+              echo ""
+              echo "Review it, then merge to deploy."
+            else
+              echo "### One more click needed"
+              echo ""
+              echo "The products were written and pushed to \`$BRANCH\`, but this repo"
+              echo "does not allow Actions to open pull requests, so open it yourself:"
+              echo ""
+              echo "**[Open the pull request](https://github.com/${{ github.repository }}/compare/main...$BRANCH?expand=1)**"
+              echo ""
+              echo "To make this automatic, tick *Settings → Actions → General →"
+              echo "Allow GitHub Actions to create and approve pull requests*."
+            fi
             echo ""
             cat /tmp/import.log
           } >> "$GITHUB_STEP_SUMMARY"
