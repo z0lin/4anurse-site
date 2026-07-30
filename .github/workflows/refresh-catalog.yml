@@ -65,7 +65,13 @@ jobs:
         if: steps.creds.outputs.configured == 'true'
         run: npm run build
 
+      # continue-on-error for the same reason as import-products.yml: opening a PR
+      # depends on the repo's "Allow GitHub Actions to create and approve pull
+      # requests" setting. Without it the branch is still pushed, so a refresh is
+      # never silently lost.
       - name: Open PR with refreshed prices
+        id: pr
+        continue-on-error: true
         if: steps.creds.outputs.configured == 'true' && !inputs.dry_run
         uses: peter-evans/create-pull-request@v6
         with:
@@ -75,3 +81,23 @@ jobs:
           title: 'Daily catalog refresh'
           body-path: refresh.log
           labels: automation
+
+      - name: Summary
+        if: always() && steps.creds.outputs.configured == 'true'
+        run: |
+          {
+            if [ "${{ steps.pr.outcome }}" = "success" ] && [ -n "${{ steps.pr.outputs.pull-request-url }}" ]; then
+              echo "**Pull request:** ${{ steps.pr.outputs.pull-request-url }}"
+            elif [ "${{ inputs.dry_run }}" = "true" ]; then
+              echo "Dry run — nothing written."
+            else
+              echo "Refreshed prices are on \`automation/catalog-refresh\`."
+              echo ""
+              echo "**[Open the pull request](https://github.com/${{ github.repository }}/compare/main...automation/catalog-refresh?expand=1)**"
+              echo ""
+              echo "Tick *Settings → Actions → General → Allow GitHub Actions to create"
+              echo "and approve pull requests* to have this opened automatically."
+            fi
+            echo ""
+            [ -f refresh.log ] && cat refresh.log
+          } >> "$GITHUB_STEP_SUMMARY"
