@@ -32,7 +32,7 @@
     { "tag": "stationery",     "label": "Stationery",         "any": ["sticky note", "notepad", "gel pen", "pens", "marker", "sticker", "decal", "notebook", "journal", "greeting card", "card gift", "graduation card", "note card"] },
     { "tag": "study-guides",   "label": "Study Guides",       "any": ["nclex", "study guide", "handwritten note", "nursing note", "flash card", "flashcard", "cheat sheet", "med surg", "pharmacology", "care plan", "nursing school bundle", "survival guide", "review book", "test prep", "charting", "documentation", "note examples"] },
     { "tag": "books",          "label": "Books",              "any": ["coloring book", "paperback", "hardcover", "book", "would you rather", "scripture cards", "handwritten notes", "incredibly easy", "novel", "memoir"] },
-    { "tag": "home-decor",     "label": "Home & Decor",       "any": ["figurine", "plaque", "box sign", "candle", "pillow", "doll", "crochet", "sun catcher", "desk decor", "affirmation", "angel", "tabletop", "resin"] }
+    { "tag": "home-decor",     "label": "Home & Decor",       "any": ["figurine", "plaque", "box sign", "candle", "pillow", "doll", "crochet", "sun catcher", "desk decor", "affirmation", "angel", "tabletop", "resin", "decor", "keepsake", "paperweight", "collectible", "ornament", "wall art", "gag gift", "rubber duck"] }
   ],
 
   "occasion": [
