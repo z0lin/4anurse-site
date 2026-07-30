@@ -81,8 +81,26 @@ const websiteSchema = {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
   </noscript>
 
-  <!-- Privacy-friendly analytics: Plausible (keep your existing one) -->
-  <script defer data-domain="4anurse.com" src="https://plausible.io/js/script.js"></script>
+  <!--
+    Privacy-friendly analytics: self-hosted Plausible.
+
+    REPLACES the previous hosted plausible.io tag rather than sitting alongside
+    it. Two Plausible scripts on one page means every pageview is counted twice,
+    in two different dashboards, and neither number is usable.
+
+    No data-domain attribute here: this is Plausible's per-site script, so the
+    site identity is baked into the filename (pa-...js) and setting data-domain
+    as well would conflict with it.
+
+    is:inline on both tags is load-bearing. Astro bundles <script> by default,
+    which would rewrite the inline snippet and break the plausible.q queue that
+    buffers events fired before the async script finishes loading.
+  -->
+  <script is:inline async src="https://analytics.thetelehealthnurse.com/js/pa-MrSTgGRmPITI9nYiHYpaT.js"></script>
+  <script is:inline>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 
   <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script is:inline>
