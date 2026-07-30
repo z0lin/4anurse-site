@@ -50,6 +50,12 @@
   function getPrice() {
     // Ordered most-specific first. .a-offscreen holds the screen-reader price,
     // which is the cleanest single string Amazon exposes.
+    //
+    // BOOKS are the important special case and the reason this list is long:
+    // book pages have no standard buy box. The price lives in the format-selector
+    // swatches (#tmmSwatches / .swatchElement) or a bare #price, so a collector
+    // that only knows the buy box returns nothing on every book — which is how a
+    // whole batch of study guides and textbooks arrived with empty prices.
     var t = firstText([
       '#corePriceDisplay_desktop_feature_div .a-price .a-offscreen',
       '#corePrice_feature_div .a-price .a-offscreen',
@@ -59,10 +65,20 @@
       '#priceblock_dealprice',
       '#priceblock_saleprice',
       '#price_inside_buybox',
-      '.a-price .a-offscreen'
+      // book / media format selector
+      '#tmmSwatches .swatchElement.selected .a-color-price',
+      '#tmmSwatches .a-color-price',
+      '#tmm-grid-swatch-PAPERBACK .a-color-price',
+      '#tmm-grid-swatch-HARDCOVER .a-color-price',
+      '#tmm-grid-swatch-SPIRAL_BOUND .a-color-price',
+      '.kindle-price .a-color-price',
+      '#price',
+      // last resort: any price-shaped string on the page
+      '.a-price .a-offscreen',
+      '.a-color-price'
     ]);
     var m = t.match(/\$\s?[\d,]+(?:\.\d{2})?/);
-    return m ? m[0].replace(/\s/g, '') : '';
+    return m ? m[0].replace(/[\s,]/g, function (c) { return c === ',' ? ',' : ''; }) : '';
   }
 
   function getImage() {
@@ -90,18 +106,33 @@
   }
 
   function getBrand() {
-    var t = firstText(['#bylineInfo', '#brand', 'a#bylineInfo']);
+    // Product pages give "Brand". BOOK pages give a multi-line author block:
+    //   "by \n MyNurseNotes.com \n (Author) \n Format: Spiral-bound"
+    // Newlines survive into a quoted CSV field and then into YAML frontmatter,
+    // so collapse whitespace first and cut at the first role/format marker.
+    var t = firstText(['#bylineInfo', '#brand', 'a#bylineInfo', '#bylineContributor'])
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!t) return '';
+    t = t.replace(/^by\s+/i, '');
+    t = t.split(/\s*\((?:Author|Editor|Illustrator|Contributor)\)/i)[0];
+    t = t.split(/\s*Format:/i)[0];
     return t
       .replace(/^Visit the\s+/i, '')
       .replace(/\s+Store$/i, '')
       .replace(/^Brand:\s*/i, '')
-      .trim();
+      .replace(/[,;]\s*$/, '')
+      .trim()
+      .slice(0, 80);
   }
 
   // ── csv ──────────────────────────────────────────────────────────────────
   function esc(v) {
-    v = v == null ? '' : String(v);
-    return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    // Collapse whitespace before quoting. A field containing newlines is legal
+    // CSV, parses fine, and then lands in YAML frontmatter as a multi-line
+    // scalar — fragile at best. Normalise at the source instead.
+    v = v == null ? '' : String(v).replace(/\s+/g, ' ').trim();
+    return /[",]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
   }
 
   function toRow(p) {
@@ -164,6 +195,24 @@
     };
     var close = d.querySelector('[data-anc-close]');
     if (close) close.onclick = function (e) { e.preventDefault(); d.remove(); };
+
+    // Download is the reliable route into GitHub: the Actions "paste" box is a
+    // SINGLE-LINE input, so a multi-row CSV pasted there loses everything after
+    // the first newline. A file has no such limit — drop it into imports/.
+    var dl = d.querySelector('[data-anc-download]');
+    if (dl) dl.onclick = function (e) {
+      e.preventDefault();
+      var rows = load();
+      if (!rows.length) return;
+      var blob = new Blob([csv(rows)], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'products-' + rows.length + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    };
     return d;
   }
 
@@ -223,7 +272,8 @@
 
     toast(
       head + body + tail +
-      '<div style="margin-top:10px;display:flex;gap:14px">' +
+      '<div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap">' +
+      '<a data-anc-download style="' + btn + ';font-weight:600">⬇ Download CSV (' + rows.length + ')</a>' +
       '<a data-anc-clear style="' + btn + '">Clear list</a>' +
       '<a data-anc-close style="' + btn + '">Dismiss</a></div>'
     );

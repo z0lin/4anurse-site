@@ -30,7 +30,8 @@
     { "tag": "apparel",        "label": "Apparel",            "any": ["sweatshirt", "compression socks", "t-shirt", "tshirt", "hoodie", "scrub top", "socks"] },
     { "tag": "drinkware",      "label": "Drinkware",          "any": ["tumbler", "mug", "water bottle", "party cup", "travel mug", "wine glass", "coffee cup", "stanley"] },
     { "tag": "stationery",     "label": "Stationery",         "any": ["sticky note", "notepad", "gel pen", "pens", "marker", "sticker", "decal", "notebook", "journal"] },
-    { "tag": "books",          "label": "Books",              "any": ["coloring book", "paperback", "hardcover", "book", "would you rather", "scripture cards", "handwritten notes"] },
+    { "tag": "study-guides",   "label": "Study Guides",       "any": ["nclex", "study guide", "handwritten note", "nursing note", "flash card", "flashcard", "cheat sheet", "med surg", "pharmacology", "care plan", "nursing school bundle", "survival guide", "review book", "test prep"] },
+    { "tag": "books",          "label": "Books",              "any": ["coloring book", "paperback", "hardcover", "book", "would you rather", "scripture cards", "handwritten notes", "incredibly easy", "novel", "memoir"] },
     { "tag": "home-decor",     "label": "Home & Decor",       "any": ["figurine", "plaque", "box sign", "candle", "pillow", "doll", "crochet", "sun catcher", "desk decor", "affirmation", "angel", "tabletop", "resin"] }
   ],
 

@@ -51,13 +51,26 @@
   <ol>
     <li>Drag the button above onto your browser's bookmarks bar.</li>
     <li>Open any Amazon product page you want to add.</li>
-    <li>Click the bookmark. It grabs the ASIN, title, price, image and brand, adds
-        them to a running list, and puts the whole list on your clipboard as CSV.</li>
-    <li>Repeat for as many products as you like — each click re-copies the full list.</li>
-    <li>Paste into a file, e.g. <code>new-products.csv</code>, and import:</li>
+    <li>Click the bookmark. It grabs the ASIN, title, price, image and brand and
+        adds them to a running list.</li>
+    <li>Repeat for as many products as you like.</li>
+    <li>Click <strong>⬇ Download CSV</strong> in the toast.</li>
+    <li>On GitHub, put that file in <code>imports/</code> via
+        <strong>Add file → Upload files</strong> and commit. A workflow imports it
+        and opens a pull request for you to review.</li>
   </ol>
 
-<pre>node scripts/ingest.mjs --import new-products.csv
+  <div class="note">
+    <strong>Use Download, not copy-paste, for more than one product.</strong>
+    The Actions "paste CSV" box is a single-line field, so a multi-row CSV pasted
+    there loses everything after the first line. The downloaded file has no such
+    limit. If you do want to paste, base64 it first
+    (<code>base64 -w0 products.csv</code>) — the workflow detects and decodes that.
+  </div>
+
+  <p>Prefer a terminal? The same file works locally:</p>
+
+<pre>node scripts/ingest.mjs --import products-12.csv
 node scripts/ingest.mjs --review
 node scripts/ingest.mjs --commit --approve-all
 npm run build</pre>
