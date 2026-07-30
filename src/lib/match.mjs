@@ -29,8 +29,34 @@ const WEIGHT = { type: 5, recipient: 4, occasion: 3, token: 1 };
 /** Minimum score for a product to count as genuinely relevant. */
 const MIN_SCORE = 3;
 
-/** Cap per type so a post doesn't surface six near-identical stethoscopes. */
+/**
+ * Cap per type, by how focused the post is.
+ *
+ * A generic gift roundup should not show six near-identical stethoscopes — hence
+ * the low default. But a post whose TITLE names a product type ("Best Nursing
+ * Clipboards…") is about that type, and depth is the point: capping it at 2 of 11
+ * clipboards made the flagship buying guide weaker than a random listicle.
+ */
 const MAX_PER_TYPE = 2;
+const MAX_PER_TYPE_FOCUSED = 6;
+
+/**
+ * Price intent read off the post's wording.
+ *
+ * The scorer weighs type, occasion and recipient — not price. So a "luxury
+ * splurge" post had no way to prefer expensive stock and surfaced a $24.95 blood
+ * pressure kit. These re-rank equally-scored matches; they never widen the match
+ * set, so a budget post cannot invent cheap products that do not exist.
+ */
+const PRICE_INTENT = [
+  { dir: 'desc', re: /\b(luxury|splurge|premium|high[- ]end|expensive|investment|best of the best|top[- ]tier)\b/i },
+  { dir: 'asc', re: /\b(budget|cheap|affordable|under \$?\d+|inexpensive|stocking stuffer|small gift)\b/i },
+];
+
+function priceIntent(text) {
+  for (const p of PRICE_INTENT) if (p.re.test(text)) return p.dir;
+  return null;
+}
 
 const STOP = new Set([
   'the', 'and', 'for', 'with', 'that', 'this', 'your', 'you', 'are', 'best', 'top',
@@ -82,16 +108,27 @@ export function matchProducts(post, products, limit = 6) {
 
       return { product: p, score };
     })
-    .filter((s) => s.score >= MIN_SCORE)
-    .sort((a, b) => b.score - a.score || a.product.data.priceValue - b.product.data.priceValue);
+    .filter((s) => s.score >= MIN_SCORE);
 
-  // Enforce type diversity while preserving score order.
+  // Tie-break by price when the post signals an intent; otherwise cheapest first.
+  const intent = priceIntent(text);
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const d = a.product.data.priceValue - b.product.data.priceValue;
+    return intent === 'desc' ? -d : d;
+  });
+
+  // A post whose title names a type is ABOUT that type, so allow real depth there
+  // and keep the tight cap for everything else.
+  const focusedType = facets.type;
+  const capFor = (t) => (t === focusedType ? MAX_PER_TYPE_FOCUSED : MAX_PER_TYPE);
+
   const perType = {};
   const picked = [];
   for (const { product } of scored) {
     const t = product.data.type;
     perType[t] = (perType[t] ?? 0) + 1;
-    if (perType[t] > MAX_PER_TYPE) continue;
+    if (perType[t] > capFor(t)) continue;
     picked.push(product);
     if (picked.length >= limit) break;
   }
