@@ -18,6 +18,16 @@
  * time, so there is one source of truth.
  */
 (function () {
+  /**
+   * Shown in the popup so a stale install is DIAGNOSABLE.
+   *
+   * A bookmarklet is a frozen snapshot: dragging it copies this entire script
+   * into the bookmark's URL, so editing this file does nothing for a bookmark
+   * already saved. Bump this whenever behaviour changes, and compare it against
+   * the number on /tools/collector.html to tell whether a re-drag is needed.
+   */
+  var VERSION = '1.2';
+
   var KEY = '4anurse_collector_rows';
   var HEADER = 'url_or_asin,title,price,image,brand,type,occasion,recipient';
 
@@ -275,7 +285,9 @@
       '<div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap">' +
       '<a data-anc-download style="' + btn + ';font-weight:600">⬇ Download CSV (' + rows.length + ')</a>' +
       '<a data-anc-clear style="' + btn + '">Clear list</a>' +
-      '<a data-anc-close style="' + btn + '">Dismiss</a></div>'
+      '<a data-anc-close style="' + btn + '">Dismiss</a></div>' +
+      '<div style="margin-top:8px;font-size:11px;opacity:.55">collector v' + VERSION +
+      ' — if this is older than the version on /tools/collector.html, re-drag the bookmark</div>'
     );
   });
 })();

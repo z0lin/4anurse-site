@@ -45,6 +45,17 @@
   <div class="drop">
     <a class="bm" id="bm" href="#">📋 Collect ASIN</a>
     <div class="hint">Drag this button to your bookmarks bar</div>
+    <div class="hint" style="margin-top:.5rem">
+      Current version: <strong id="ver">…</strong>
+    </div>
+  </div>
+
+  <div class="note" style="border-color:#d97706">
+    <strong>Already installed it? Re-drag to update.</strong>
+    A bookmarklet is a frozen snapshot — dragging copies the whole script into the
+    bookmark, so fixes on this page never reach a bookmark you already saved.
+    The popup shows its own version at the bottom; if that number is lower than the
+    one above, delete the old bookmark and drag this one again.
   </div>
 
   <h2>How to use it</h2>
@@ -133,6 +144,9 @@ fetch('/tools/asin-collector.js')
     var href = 'javascript:' + encodeURIComponent('(function(){' + src + '})();');
     document.getElementById('bm').setAttribute('href', href);
     document.getElementById('raw').textContent = href;
+    // Surface the version so a stale bookmark can be spotted at a glance.
+    var m = src.match(/var VERSION = '([^']+)'/);
+    document.getElementById('ver').textContent = m ? 'v' + m[1] : 'unknown';
   })
   .catch(function (e) {
     document.getElementById('raw').textContent =
