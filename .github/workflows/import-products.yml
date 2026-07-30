@@ -1,0 +1,159 @@
+name: Import products from CSV
+
+# Two ways in, both needing no local setup:
+#
+#   1. Paste — Actions tab -> this workflow -> Run workflow -> paste CSV into the
+#      box. The ASIN Collector bookmarklet already leaves CSV on your clipboard,
+#      so this is usually paste-and-go.
+#
+#   2. Upload — drop a .csv into imports/ using GitHub's "Add file -> Upload
+#      files" and commit. This workflow picks it up automatically and deletes it
+#      again in the PR, so imports/ does not accumulate processed files.
+#
+# Either way the result is a PULL REQUEST, never a direct push. The build runs
+# before the PR is opened, so the content schema and the thin-page and
+# parent-overlap guards get a chance to fail in CI rather than on main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv:
+        description: 'Paste CSV (must include the header row)'
+        required: true
+        type: string
+      approve_all:
+        description: 'Auto-approve every row that passes the quality gate'
+        required: false
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths: ['imports/**.csv']
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Assemble input CSV
+        id: input
+        env:
+          PASTED: ${{ inputs.csv }}
+          # Uploads always auto-approve; there is no form to uncheck on a push.
+          # Only an explicit false from the dispatch form disables it.
+          APPROVE_INPUT: ${{ inputs.approve_all }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ -n "${PASTED:-}" ]; then
+            printf '%s\n' "$PASTED" > /tmp/import.csv
+            source=pasted
+          else
+            # Concatenate every CSV under imports/, keeping only the first header.
+            first=1
+            : > /tmp/import.csv
+            for f in imports/*.csv; do
+              [ -e "$f" ] || continue
+              echo "found $f"
+              if [ $first -eq 1 ]; then cat "$f" >> /tmp/import.csv; first=0
+              else tail -n +2 "$f" >> /tmp/import.csv; fi
+            done
+            source=uploaded
+          fi
+
+          if [ ! -s /tmp/import.csv ]; then
+            echo "::error::No CSV content found (nothing pasted, and imports/ has no .csv files)."
+            exit 1
+          fi
+
+          rows=$(( $(wc -l < /tmp/import.csv) - 1 ))
+          if [ "$rows" -lt 1 ]; then
+            echo "::error::CSV has a header but no data rows."
+            exit 1
+          fi
+
+          # Resolve the approve flag in shell rather than a GitHub expression:
+          # on a push, inputs.approve_all is empty, and an empty-vs-false
+          # comparison in an expression silently lands on "do not approve".
+          approve="--approve-all"
+          if [ "$EVENT" = "workflow_dispatch" ] && [ "$APPROVE_INPUT" = "false" ]; then
+            approve=""
+          fi
+
+          {
+            echo "source=$source"
+            echo "rows=$rows"
+            echo "approve=$approve"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::Importing $rows row(s) from $source (approve='$approve')"
+
+      - name: Stage, review and write products
+        id: run
+        env:
+          APPROVE: ${{ steps.input.outputs.approve }}
+        run: |
+          set -o pipefail
+          {
+            echo '### Import log'
+            echo ''
+            echo '```'
+            node scripts/ingest.mjs --import /tmp/import.csv 2>&1
+            echo ''
+            node scripts/ingest.mjs --review 2>&1
+            echo ''
+            node scripts/ingest.mjs --commit $APPROVE 2>&1
+            echo '```'
+          } | tee /tmp/import.log
+          # Count what actually landed so the PR title is honest. grep -c exits 1
+          # on zero matches, which would fail the step under pipefail.
+          written=$(grep -c '  WROTE ' /tmp/import.log || true)
+          echo "written=${written:-0}" >> "$GITHUB_OUTPUT"
+          if [ "${written:-0}" -eq 0 ]; then
+            echo "::warning::No products were written — every row was blocked or left unapproved. See the log."
+          fi
+
+      # The guards that ingestion does NOT enforce live in the build: content
+      # schema, thin-page threshold, parent overlap. Fail here, not on main.
+      - name: Verify build
+        run: npm run build
+
+      - name: Remove processed upload files
+        if: steps.input.outputs.source == 'uploaded'
+        run: |
+          rm -f imports/*.csv
+          echo "::notice::Cleared imports/*.csv so they are not reprocessed."
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'content: import ${{ steps.run.outputs.written }} product(s) from CSV'
+          branch: automation/product-import
+          delete-branch: true
+          title: 'Import ${{ steps.run.outputs.written }} product(s) from CSV'
+          body-path: /tmp/import.log
+          labels: automation, content
+
+      - name: Summary
+        run: |
+          {
+            echo "## Import complete"
+            echo ""
+            echo "- rows submitted: **${{ steps.input.outputs.rows }}**"
+            echo "- products written: **${{ steps.run.outputs.written }}**"
+            echo ""
+            echo "Review the pull request, then merge to deploy."
+            echo ""
+            cat /tmp/import.log
+          } >> "$GITHUB_STEP_SUMMARY"
