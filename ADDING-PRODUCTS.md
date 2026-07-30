@@ -1,8 +1,8 @@
 # Adding products
 
-Three ways in, depending on whether PA-API access exists yet. All three feed the
-same queue and go through the same classification, dedup, quality gate and file
-writing — only how the raw fields arrive differs.
+Several ways in, depending on how much tooling you want to touch. All of them feed
+the same queue and go through the same classification, dedup, quality gate and
+file writing — only how the raw fields arrive differs.
 
 ---
 
@@ -35,7 +35,7 @@ bar. Then, on any Amazon product page you opened yourself, click it: it reads th
 ASIN, title, price, image and brand off the page, adds them to a running list,
 and puts the whole list on your clipboard as CSV. Click through as many products
 as you like — every click re-copies the full list. Paste into a file and import
-with Method 2.
+with Method 2 or 3.
 
 Roughly 5 seconds per product instead of 45 typing by hand.
 
@@ -50,7 +50,27 @@ it. Fill that cell in by hand rather than importing a blank.
 Tested by `node scripts/test-collector.mjs` (25 assertions) against synthetic
 markup for both the modern buy-box and legacy layouts.
 
-## Method 2 — CSV bulk import (works today, no API needed)
+## Method 2 — Upload the CSV on GitHub (no local setup at all)
+
+Easiest route if you do not want to touch a terminal. Either:
+
+- **Paste it.** Actions → *Import products from CSV* → **Run workflow** → paste
+  into the box. The bookmarklet already left the CSV on your clipboard, so this
+  is usually paste-and-go.
+- **Upload it.** Drop a `.csv` into [`imports/`](imports/) using GitHub's
+  **Add file → Upload files** and commit. The workflow picks it up automatically
+  and deletes the processed file in the same PR, so `imports/` stays clean.
+
+Either way the workflow classifies the rows, runs the quality gate, **verifies the
+build**, and opens a **pull request** — never a direct push. The full import log
+becomes the PR body, so you can see exactly what was staged, what was blocked and
+why, before merging. Merging deploys.
+
+The build step matters: it enforces the guards ingestion does not (content schema,
+thin-page threshold, parent overlap), so a bad batch fails in CI rather than on
+`main`.
+
+## Method 3 — CSV import from the CLI
 
 Takes the collector's output, or a spreadsheet you built by hand. Copy
 `scripts/product-import-template.csv`, fill it in, then:
@@ -80,7 +100,7 @@ image address (an `m.media-amazon.com` URL).
 
 ---
 
-## Method 3 — PA-API (once approved: fastest, and the only complete option)
+## Method 4 — PA-API (once approved: fastest, and the only complete option)
 
 ```bash
 export PAAPI_ACCESS_KEY=...      # or set as GitHub Actions secrets
@@ -112,7 +132,7 @@ API. Requires an approved Associates account with 3 qualifying sales in 180 days
 
 ---
 
-## Method 4 — Decap CMS (one-off edits)
+## Method 5 — Decap CMS (one-off edits)
 
 `/admin/` gives a web form per product. Fine for fixing a title or flipping
 `featured`; slow for bulk work, and it does not run the quality gate.
