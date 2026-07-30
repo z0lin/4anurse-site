@@ -75,6 +75,33 @@ const breadcrumbSchema = {
   ],
 };
 
+/**
+ * ItemList for the product block, so the picks on 320 blog posts are machine-
+ * readable instead of anonymous markup.
+ *
+ * Deliberately NOT Product/Offer: that belongs on pages that sell the item, and
+ * affiliate roundups publishing prices they do not control are an enforcement
+ * target. Same reasoning as the category pages.
+ *
+ * The `name` reflects what the block ACTUALLY is. When the matcher found nothing
+ * relevant the block is generic, so calling it "<post title>" would assert a
+ * curation that did not happen — it gets the honest label instead.
+ */
+const productListSchema = shopProducts.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: isMatched ? `Picks from: ${post.data.title}` : 'Popular nurse gifts',
+      numberOfItems: shopProducts.length,
+      itemListElement: shopProducts.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: p.data.title,
+        url: buildAmazonUrl(p.data.asin),
+      })),
+    }
+  : null;
+
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -99,6 +126,9 @@ const articleSchema = {
 >
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
+  {productListSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(productListSchema)}></script>
+  )}
 
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span><a href="/blog/">Blog</a><span>›</span>{post.data.title}
