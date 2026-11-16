@@ -6,7 +6,7 @@ amazonUrl: "https://www.amazon.com/dp/B0D86K2LVG/?tag=4anurse05-20"
 price: "$6.99"
 priceValue: 6.99
 category: accessories
-type: drinkware
+type: stationery
 occasion: []
 recipient: []
 featured: false
