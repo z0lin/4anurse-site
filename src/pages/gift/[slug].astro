@@ -172,7 +172,7 @@ const faqSchema = {
           Check price on Amazon
         </a>
         <p class="gift-disclosure">
-          We may earn a commission if you buy through this link, at no extra cost to you.
+          Paid link. We may earn a commission if you buy through it, at no extra cost to you.
           <a href="/disclosure/">Learn more</a>
         </p>
       </div>
@@ -192,6 +192,7 @@ const faqSchema = {
       <a class="gift-cta" href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
         View {page.name} on Amazon
       </a>
+      <p class="gift-disclosure" style="text-align: center;">Paid link. We may earn a commission at no extra cost to you.</p>
     </div>
   </article>
 
@@ -223,7 +224,7 @@ const faqSchema = {
 
   <!-- Mobile only: the purchase link stays one thumb tap away while reading. -->
   <div class="gift-sticky" aria-hidden="false">
-    <span class="gift-sticky-name">{page.name}</span>
+    <span class="gift-sticky-name"><span class="gift-sticky-title">{page.name}</span><small class="gift-sticky-ad">Paid link</small></span>
     <a class="gift-cta" href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
       View on Amazon
     </a>

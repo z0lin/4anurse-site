@@ -205,6 +205,11 @@ const categories = (await getCollection('categories'))
         cta.textContent = 'View on Amazon';
         info.appendChild(cta);
 
+        const ad = document.createElement('span');
+        ad.className = 'product-ad';
+        ad.textContent = 'Paid link';
+        info.appendChild(ad);
+
         article.appendChild(a);
         article.appendChild(info);
         return article;

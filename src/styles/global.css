@@ -781,3 +781,18 @@ h1, h2, h3, h4 {
   .product-card .product-cta::after { content: none; }
   .product-details { font-size: 0.75rem; }
 }
+
+/* FTC disclosure beside every affiliate button ("Paid link" is the FTC's own
+   example of adequate wording; a footer-only disclosure is not enough). */
+.product-ad {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.gift-sticky-name { display: flex; flex-direction: column; }
+.gift-sticky-name { overflow: hidden; }
+.gift-sticky-ad { font-size: 0.68rem; font-weight: 400; color: var(--color-muted); }
+.gift-sticky-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
