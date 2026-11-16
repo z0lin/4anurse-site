@@ -1,0 +1,231 @@
+---
+/**
+ * A product's own page: /gift/<slug>/.
+ *
+ * Generated ONLY for products that have original copy in
+ * src/content/giftpages/. The page exists to rank for gift intent searches
+ * ("badge reel gift for new grad nurse") and to feed internal links to the
+ * category and occasion pages, so the copy must be ours, never Amazon's.
+ *
+ * The purchase path is the point of the page: an affiliate button sits above
+ * the fold, again after the write up, and in a sticky bar on mobile. Every
+ * affiliate link carries rel="nofollow sponsored".
+ *
+ * Structured data is BreadcrumbList + FAQPage, deliberately NOT Product/Offer:
+ * we do not sell the item and the prices are hand maintained until PA-API
+ * lands (see the ItemList note in gifts/[category].astro). Product markup
+ * without a live Offer is also flagged as invalid by Search Console.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { buildAmazonUrl, LABELS } from '../../lib/taxonomy';
+import { giftPagesByAsin, giftPath, OCCASION_HUBS, RECIPIENT_HUBS, priceHub } from '../../lib/gift-pages';
+import { lintGiftPage } from '../../lib/copy-lint.mjs';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('giftpages');
+  const products = await getCollection('products');
+  const byAsin = new Map(products.map((p) => [p.data.asin, p]));
+
+  const seen = new Map<string, string>();
+  const paths = [];
+  for (const page of pages) {
+    const d = page.data;
+    const product = byAsin.get(d.asin);
+    if (!product) {
+      throw new Error(`Gift page ${page.id}: no product with ASIN ${d.asin}. Delete the file or restore the product.`);
+    }
+    if (seen.has(d.slug)) {
+      throw new Error(`Gift page slug "${d.slug}" is used by both ${seen.get(d.slug)} and ${d.asin}.`);
+    }
+    seen.set(d.slug, d.asin);
+
+    const { errors, warnings } = lintGiftPage(d);
+    if (errors.length) {
+      throw new Error(`Gift page /gift/${d.slug}/ (${d.asin}) failed the copy rules:\n  - ${errors.join('\n  - ')}`);
+    }
+    for (const w of warnings) console.warn(`[gift page] /gift/${d.slug}/: ${w}`);
+
+    // A dead listing must not keep a page that sends people to a 404.
+    if (product.data.availability === 'dead') continue;
+
+    paths.push({ params: { slug: d.slug }, props: { page: d, product } });
+  }
+  return paths;
+}
+
+const { page, product } = Astro.props;
+const d = product.data;
+const amazon = buildAmazonUrl(d.asin);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const typeLabel = LABELS[d.type] ?? 'Gifts';
+
+// The category page that collects this product's type: the breadcrumb parent.
+const categories = await getCollection('categories');
+const parent =
+  categories.find((c) => !c.data.hideFromHub && c.data.types.length === 1 && c.data.types[0] === d.type) ??
+  categories.find((c) => !c.data.hideFromHub && c.data.types.includes(d.type));
+// Some category labels are a single ambiguous word ("Home" for home decor sits
+// right after the Home crumb), so the crumb uses the product type's label.
+const parentLabel = parent && (parent.data.label.toLowerCase() === 'home' ? typeLabel : parent.data.label);
+
+// Related gifts: same type first, then shared occasion or recipient. Products
+// with their own page are preferred so the internal link graph stays dense.
+const pagesByAsin = await giftPagesByAsin();
+const all = (await getCollection('products')).filter(
+  (p) => p.data.asin !== d.asin && p.data.availability !== 'dead'
+);
+const score = (p: any) =>
+  (p.data.type === d.type ? 10 : 0) +
+  p.data.occasion.filter((o: string) => d.occasion.includes(o)).length * 3 +
+  p.data.recipient.filter((r: string) => d.recipient.includes(r)).length * 3 +
+  (pagesByAsin.has(p.data.asin) ? 2 : 0);
+// Stable ordering (ASIN tiebreak) so the HTML does not change between builds.
+const related = all
+  .map((p) => ({ p, s: score(p) }))
+  .filter((x) => x.s >= 3)
+  .sort((a, b) => b.s - a.s || Math.abs(a.p.data.priceValue - d.priceValue) - Math.abs(b.p.data.priceValue - d.priceValue) || a.p.data.asin.localeCompare(b.p.data.asin))
+  .slice(0, 4)
+  .map((x) => x.p);
+
+// "More ways to shop": the occasion, recipient and budget pages this fits.
+const shopLinks = [
+  parent && { href: `/gifts/${parent.slug}/`, label: `All ${parentLabel.toLowerCase()}` },
+  ...d.occasion.map((o: string) => OCCASION_HUBS[o]).filter(Boolean),
+  ...d.recipient.map((r: string) => RECIPIENT_HUBS[r]).filter(Boolean),
+  priceHub(d.priceValue),
+  { href: '/gifts/', label: 'Every gift category' },
+].filter(Boolean) as { href: string; label: string }[];
+
+const title = `${page.seoTitle} | 4aNurse`;
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.toString() },
+    { '@type': 'ListItem', position: 2, name: 'Gifts', item: `${Astro.site}gifts/` },
+    ...(parent
+      ? [{ '@type': 'ListItem', position: 3, name: parentLabel, item: `${Astro.site}gifts/${parent.slug}/` }]
+      : []),
+    { '@type': 'ListItem', position: parent ? 4 : 3, name: page.name, item: canonicalURL.toString() },
+  ],
+};
+
+const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: page.seoTitle,
+  description: page.metaDescription,
+  url: canonicalURL.toString(),
+  primaryImageOfPage: { '@type': 'ImageObject', url: d.image },
+  ...(page.updated || d.dateAdded ? { dateModified: (page.updated ?? d.dateAdded).toISOString().slice(0, 10) } : {}),
+  isPartOf: { '@type': 'WebSite', name: '4aNurse', url: Astro.site?.toString() },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: page.faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout title={title} description={page.metaDescription} image={d.image}>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(webPageSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>›</span><a href="/gifts/">Gifts</a><span>›</span>
+    {parent && <><a href={`/gifts/${parent.slug}/`}>{parentLabel}</a><span>›</span></>}
+    <span class="breadcrumb-current">{page.name}</span>
+  </nav>
+
+  <section class="gift-hero">
+    <div class="gift-hero-image">
+      <a href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
+        <img src={d.image} alt={page.name} width="600" height="600" decoding="async" fetchpriority="high" />
+      </a>
+    </div>
+    <div class="gift-hero-body">
+      <span class="tag">{typeLabel}</span>
+      <h1>{page.name}</h1>
+      <p class="gift-summary">{page.summary}</p>
+
+      <ul class="gift-bestfor" aria-label="Best for">
+        {page.bestFor.map((b) => <li>{b}</li>)}
+      </ul>
+
+      <div class="gift-buy">
+        {d.price && (
+          <p class="gift-price">
+            <span class="product-price">{d.price}</span>
+            <span class="gift-price-note">Price when listed. Amazon shows the current price.</span>
+          </p>
+        )}
+        <a class="gift-cta" href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
+          Check price on Amazon
+        </a>
+        <p class="gift-disclosure">
+          We may earn a commission if you buy through this link, at no extra cost to you.
+          <a href="/disclosure/">Learn more</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <article class="gift-body">
+    <h2>Why it makes a good gift for a nurse</h2>
+    {page.whyItWorks.map((para) => <p>{para}</p>)}
+
+    <h2>Good to know before you buy</h2>
+    <ul>
+      {page.goodToKnow.map((g) => <li>{g}</li>)}
+    </ul>
+
+    <div class="gift-buy-inline">
+      <a class="gift-cta" href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
+        View {page.name} on Amazon
+      </a>
+    </div>
+  </article>
+
+  <section class="faq">
+    <h2>Questions gift shoppers ask</h2>
+    {page.faq.map((item, i) => (
+      <details class="faq-item" open={i === 0}>
+        <summary>{item.q}</summary>
+        <p>{item.a}</p>
+      </details>
+    ))}
+  </section>
+
+  {related.length > 0 && (
+    <section class="gift-related">
+      <h2>Similar gifts nurses like</h2>
+      <div class="product-grid">
+        {related.map((p) => <ProductCard product={p} />)}
+      </div>
+    </section>
+  )}
+
+  <section class="gift-shop-links">
+    <h2>More ways to shop</h2>
+    <div class="gift-shop-links-list">
+      {shopLinks.map((l) => <a class="tag" href={l.href}>{l.label}</a>)}
+    </div>
+  </section>
+
+  <!-- Mobile only: the purchase link stays one thumb tap away while reading. -->
+  <div class="gift-sticky" aria-hidden="false">
+    <span class="gift-sticky-name">{page.name}</span>
+    <a class="gift-cta" href={amazon} target="_blank" rel="nofollow sponsored noopener" data-asin={d.asin}>
+      View on Amazon
+    </a>
+  </div>
+</BaseLayout>

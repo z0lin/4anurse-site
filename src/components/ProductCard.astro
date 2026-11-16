@@ -1,0 +1,74 @@
+---
+/**
+ * The one product card used by every grid on the site.
+ *
+ * Two links, two jobs:
+ *  - The image and title go to the product's own page on 4aNurse (/gift/<slug>/)
+ *    when one exists. These are normal followed internal links, which is how
+ *    Google discovers the pages and how link equity flows into them.
+ *  - The "View on Amazon" button is ALWAYS the affiliate link, so a shopper who
+ *    already knows they want it is one tap from Amazon, exactly as before.
+ *
+ * Products without a gift page keep the old behaviour: everything links to
+ * Amazon. Affiliate links always carry rel="nofollow sponsored", as Google and
+ * the Associates program require.
+ *
+ * The homepage's endless scroll builds cards client side; its card() function
+ * in src/pages/index.astro must stay in step with this markup.
+ */
+import { buildAmazonUrl } from '../lib/taxonomy';
+import { giftPagesByAsin, giftPath } from '../lib/gift-pages';
+
+interface Props {
+  product: any;
+  variant?: 'grid' | 'featured';
+  eager?: boolean;
+}
+
+const { product, variant = 'grid', eager = false } = Astro.props;
+const d = product.data;
+const page = (await giftPagesByAsin()).get(d.asin);
+const amazon = buildAmazonUrl(d.asin);
+const href = page ? giftPath(page.slug) : amazon;
+const name = page?.name ?? d.title;
+const external = !page;
+const linkAttrs = external
+  ? { target: '_blank', rel: 'nofollow sponsored noopener' }
+  : {};
+---
+
+<article
+  class={variant === 'featured' ? 'product-card featured-card' : 'product-card'}
+  data-price={d.priceValue ?? 0}
+>
+  {variant === 'featured' && d.featuredBadge && (
+    <span class="featured-badge">{d.featuredBadge}</span>
+  )}
+  <a class="product-link" href={href} {...linkAttrs}>
+    <div class="product-image">
+      <!-- width/height reserve space so remote Amazon images do not shift layout. -->
+      <img
+        src={d.image}
+        alt={name}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        width="300"
+        height="300"
+      />
+    </div>
+    <h3 class="product-title">{name}</h3>
+  </a>
+  <div class="product-info">
+    <div class="product-meta">
+      {d.price && <span class="product-price">{d.price}</span>}
+      {page && <a class="product-details" href={href}>Gift details</a>}
+    </div>
+    <a
+      class="product-cta"
+      href={amazon}
+      target="_blank"
+      rel="nofollow sponsored noopener"
+      data-asin={d.asin}
+    >View on Amazon</a>
+  </div>
+</article>

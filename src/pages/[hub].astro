@@ -1,6 +1,16 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { giftPagesByAsin, giftPath } from '../lib/gift-pages';
+
+// ItemList entries point at our own product page when one exists, so the
+// list describes pages on this site rather than a set of outbound links.
+const giftPages = await giftPagesByAsin();
+const itemUrl = (asin: string) => {
+  const g = giftPages.get(asin);
+  return g ? new URL(giftPath(g.slug), Astro.site).toString() : buildAmazonUrl(asin);
+};
 import { buildAmazonUrl } from '../lib/taxonomy';
 
 export async function getStaticPaths() {
@@ -51,7 +61,7 @@ const itemListSchema = products.length
         '@type': 'ListItem',
         position: i + 1,
         name: p.data.title,
-        url: buildAmazonUrl(p.data.asin),
+        url: itemUrl(p.data.asin),
       })),
     }
   : null;
@@ -91,20 +101,7 @@ const faqSchema = hub.data.faq?.length
   {products.length > 0 && (
     <div class="product-grid">
       {products.map((product) => (
-        <article class="product-card">
-          <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
-            <div class="product-image">
-              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async" width="300" height="300" />
-            </div>
-            <div class="product-info">
-              <h3 class="product-title">{product.data.title}</h3>
-              <div class="product-meta">
-                {product.data.price && <span class="product-price">{product.data.price}</span>}
-              </div>
-              <span class="product-cta">View on Amazon</span>
-            </div>
-          </a>
-        </article>
+        <ProductCard product={product} />
       ))}
     </div>
   )}

@@ -381,6 +381,8 @@ dateAdded: ${today}
   writeQueue(remaining);
   console.log(`\nWrote ${written} product(s); ${remaining.length} left in queue.`);
   if (written) {
+    console.log('Next: give each new product its own page (original copy, never Amazon text):');
+    console.log('  node scripts/gift-pages.mjs --missing   then --import <copy.json>');
     console.log('Verify before pushing:  npm run build');
   }
 }

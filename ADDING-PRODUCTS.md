@@ -183,6 +183,50 @@ grid.
 
 Then commit the new markdown and push — the existing deploy workflow ships it.
 
+## Product pages (/gift/&lt;slug&gt;/)
+
+Every product can have its own page, built from original copy in
+`src/content/giftpages/<slug>.json`. A product WITHOUT copy still appears in
+every grid; its card simply links straight to Amazon. A product WITH copy gets:
+
+- a page at `/gift/<slug>/` (in the sitemap, BreadcrumbList + FAQPage schema)
+- cards whose image and title open that page, while the "View on Amazon"
+  button stays the affiliate link (`rel="nofollow sponsored"`)
+- an affiliate button above the fold, after the write up, and a sticky bar on mobile
+
+Workflow after adding products:
+
+```bash
+node scripts/gift-pages.mjs --missing          # lists products with no page, writes imports/giftpages-todo.json
+# write the copy as a JSON array (fields below), e.g. imports/new-pages.json
+node scripts/gift-pages.mjs --import imports/new-pages.json
+node scripts/gift-pages.mjs --check            # same rules the build enforces
+npm run build
+rm imports/new-pages.json
+```
+
+Fields: `asin`, `slug` (3 to 6 words, lowercase, hyphens), `name` (clean product
+name), `seoTitle` (30 to 50 chars, no site name), `metaDescription` (130 to 155
+chars), `summary` (1 to 2 sentences), `bestFor` (2 to 4 short phrases),
+`whyItWorks` (2 paragraphs, 140 to 200 words total), `goodToKnow` (2 to 3 notes),
+`faq` (2 `{q, a}`), optional `updated` (date).
+
+Writing rules, enforced by `src/lib/copy-lint.mjs` (the build fails on these):
+
+- Original copy only. Never paste Amazon's description or bullets: it is
+  licensed only via PA-API and makes the page a duplicate of the listing.
+- No em or en dashes, and no hyphens joining words in prose ("full time",
+  "night shift", "well made").
+- No prices in the copy (they go stale; the price comes from the product file).
+- No first person testing claims ("we tested", "I use").
+- At least 180 words of original copy per page (thin page guard).
+- Do not invent specs the product title does not state; say "check the listing".
+
+Never change a live page's `slug` without a 301 from the old URL, because Google
+will have indexed it. Redirects on the live nginx box come from
+`/etc/nginx/sites-enabled/4anurse-redirect-map.conf` (the `$redirect_4anurse`
+map); `public/_redirects` is the old Netlify format and nginx ignores it.
+
 ## Do not scrape Amazon
 
 It violates the Associates operating agreement and risks the account the whole

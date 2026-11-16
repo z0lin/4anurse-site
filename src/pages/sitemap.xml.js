@@ -12,6 +12,10 @@ export async function GET() {
   const posts = await getCollection('blog', (p) => !p.data.draft);
   const categories = await getCollection('categories');
   const hubs = await getCollection('hubs');
+  // Product pages, only for live products that have original copy (the same
+  // rule src/pages/gift/[slug].astro uses to generate them).
+  const live = new Map(products.filter((p) => p.data.availability !== 'dead').map((p) => [p.data.asin, p]));
+  const giftpages = (await getCollection('giftpages')).filter((g) => live.has(g.data.asin));
 
   const urls = [
     url('/', new Date().toISOString().slice(0, 10)),
@@ -31,6 +35,9 @@ export async function GET() {
     url('/best-nurse-watch'),
     ...hubs.map((h) => url(`/${h.slug}`)),
     ...categories.map((c) => url(`/gifts/${c.slug}`)),
+    ...giftpages.map((g) =>
+      url(`/gift/${g.data.slug}`, (g.data.updated ?? live.get(g.data.asin).data.dateAdded)?.toISOString().slice(0, 10))
+    ),
     ...posts.map((p) => url(`/blog/${p.slug}`, p.data.pubDate?.toISOString().slice(0, 10))),
   ];
 

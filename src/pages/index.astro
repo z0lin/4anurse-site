@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
 
 import { buildAmazonUrl } from '../lib/taxonomy';
 
@@ -53,23 +54,7 @@ const categories = (await getCollection('categories'))
       </div>
       <div class="featured-grid">
         {featured.map((product) => (
-          <a class="featured-card" href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
-            {product.data.featuredBadge && (
-              <span class="featured-badge">{product.data.featuredBadge}</span>
-            )}
-            <div class="product-image">
-              <img src={product.data.image} alt={product.data.title} loading="lazy" decoding="async"
-              width="300"
-              height="300" />
-            </div>
-            <div class="product-info">
-              <h3 class="product-title">{product.data.title}</h3>
-              <div class="product-meta">
-                {product.data.price && <span class="product-price">{product.data.price}</span>}
-              </div>
-              <span class="product-cta">View on Amazon</span>
-            </div>
-          </a>
+          <ProductCard product={product} variant="featured" eager />
         ))}
       </div>
     </section>
@@ -102,27 +87,7 @@ const categories = (await getCollection('categories'))
 
   <div class="product-grid" id="product-grid">
     {sorted.map((product) => (
-      <article class="product-card">
-        <a href={buildAmazonUrl(product.data.asin)} target="_blank" rel="nofollow sponsored noopener">
-          <div class="product-image">
-            <img
-              src={product.data.image}
-              alt={product.data.title}
-              loading="lazy"
-              decoding="async"
-              width="300"
-              height="300"
-            />
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">{product.data.title}</h3>
-            <div class="product-meta">
-              {product.data.price && <span class="product-price">{product.data.price}</span>}
-            </div>
-            <span class="product-cta">View on Amazon</span>
-          </div>
-        </a>
-      </article>
+      <ProductCard product={product} />
     ))}
   </div>
 
@@ -181,13 +146,19 @@ const categories = (await getCollection('categories'))
         return a;
       }
 
+      // Mirrors src/components/ProductCard.astro. Image + title open the
+      // product's own page (p.g) when it has one; the button is always the
+      // affiliate link (p.u) with rel="nofollow sponsored".
       function card(p) {
         const article = document.createElement('article');
         article.className = 'product-card';
         const a = document.createElement('a');
-        a.href = p.u;
-        a.target = '_blank';
-        a.rel = 'nofollow sponsored noopener';
+        a.className = 'product-link';
+        a.href = p.g || p.u;
+        if (!p.g) {
+          a.target = '_blank';
+          a.rel = 'nofollow sponsored noopener';
+        }
 
         const imgWrap = document.createElement('div');
         imgWrap.className = 'product-image';
@@ -199,14 +170,15 @@ const categories = (await getCollection('categories'))
         img.width = 300;
         img.height = 300;
         imgWrap.appendChild(img);
+        a.appendChild(imgWrap);
 
-        const info = document.createElement('div');
-        info.className = 'product-info';
         const h3 = document.createElement('h3');
         h3.className = 'product-title';
         h3.textContent = p.t;
-        info.appendChild(h3);
+        a.appendChild(h3);
 
+        const info = document.createElement('div');
+        info.className = 'product-info';
         const meta = document.createElement('div');
         meta.className = 'product-meta';
         if (p.p) {
@@ -215,16 +187,26 @@ const categories = (await getCollection('categories'))
           price.textContent = p.p;
           meta.appendChild(price);
         }
+        if (p.g) {
+          const more = document.createElement('a');
+          more.className = 'product-details';
+          more.href = p.g;
+          more.textContent = 'Gift details';
+          meta.appendChild(more);
+        }
         info.appendChild(meta);
 
-        const cta = document.createElement('span');
+        const cta = document.createElement('a');
         cta.className = 'product-cta';
+        cta.href = p.u;
+        cta.target = '_blank';
+        cta.rel = 'nofollow sponsored noopener';
+        cta.dataset.asin = p.a;
         cta.textContent = 'View on Amazon';
         info.appendChild(cta);
 
-        a.appendChild(imgWrap);
-        a.appendChild(info);
         article.appendChild(a);
+        article.appendChild(info);
         return article;
       }
 

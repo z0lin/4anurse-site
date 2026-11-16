@@ -160,4 +160,33 @@ const hubs = defineCollection({
   }),
 });
 
-export const collections = { products, blog, categories, hubs };
+/**
+ * Original copy for a product's own page at /gift/<slug>/.
+ *
+ * Kept OUT of the product markdown on purpose: the ingest pipeline and the
+ * future PA-API refresh job rewrite product frontmatter, and must never be able
+ * to wipe hand-approved writing. One JSON file per product, keyed by ASIN.
+ *
+ * Every string here must be original. Amazon's description and bullets are
+ * licensed only for display through PA-API, and copying them would make each
+ * page a duplicate of the Amazon listing. Rules (no dashes, no prices, minimum
+ * word count) are enforced by src/lib/copy-lint.mjs at build time.
+ */
+const giftpages = defineCollection({
+  type: 'data',
+  schema: z.object({
+    asin: z.string().regex(/^[A-Z0-9]{10}$/),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+){1,7}$/),
+    name: z.string().min(8).max(90),
+    seoTitle: z.string().min(15).max(70),
+    metaDescription: z.string().min(80).max(180),
+    summary: z.string().min(40).max(300),
+    bestFor: z.array(z.string()).min(2).max(5),
+    whyItWorks: z.array(z.string()).min(2).max(4),
+    goodToKnow: z.array(z.string()).min(2).max(4),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).min(2).max(4),
+    updated: z.coerce.date().optional(),
+  }),
+});
+
+export const collections = { products, blog, categories, hubs, giftpages };
