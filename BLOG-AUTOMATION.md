@@ -56,6 +56,8 @@ title, description and category (check with
      internal link ends with `/`.
    - Never paste Amazon links; the build adds product cards with the
      affiliate tag automatically.
+   - Gender neutral: refer to the nurse as "they", "your nurse" or by role,
+     never default to "she" or "he".
    - No em or en dashes. No hyphen-joined words in prose ("full time",
      "night shift", "12 hour shift"). No dollar amounts (say "budget",
      "under 25 dollars" only by linking the budget page). No claims of
