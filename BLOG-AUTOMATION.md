@@ -12,8 +12,8 @@ from TNN.
 - **Working copy:** `C:\Users\Matt\Documents\4anurse-blog-bot\4anurse-site`
   (a dedicated clone; never edit it by hand).
 - **Pacing:** twice a week until Dec 21, then weekly (`pace` in the queue).
-- **Review:** the first 3 posts open as GitHub pull requests for Matt to merge
-  (`reviewFirst`). After that the writer pushes straight to `main`.
+- **Review:** none. Matt chose full automation on 2026-11-16; posts publish
+  directly once they pass the gates. Set `reviewFirst` to N to require PRs again.
 - **Notifications:** every post (or failure) goes to Matt on Telegram.
 
 ## The queue

@@ -12,8 +12,8 @@
     }
   ],
   "lowWater": 4,
-  "_reviewFirst": "The first N automated posts are opened as GitHub pull requests for Matt to approve instead of publishing directly.",
-  "reviewFirst": 3,
+  "_reviewFirst": "Matt chose full automation on 2026-11-16: posts publish directly once they pass check-post and the build. Set to N to require PR review for the next N posts.",
+  "reviewFirst": 0,
   "items": [
     {
       "id": "xmas-2026-pillar",
