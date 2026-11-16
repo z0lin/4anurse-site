@@ -1,5 +1,10 @@
 # Blog backlog
 
+> **Superseded for automated posting (2026-11-16):** the scheduled writer now
+> works from `blog-queue.json` (Christmas 2026, then 2027 topics). See
+> `BLOG-AUTOMATION.md`. This file remains the reference for coverage gaps and
+> saturated themes, which the writer reads before each post.
+
 The blog stopped 2026-04-16 after 320 posts and the old Airtable topic queue is
 exhausted (315/315 marked done). This is the replacement, built from two measured
 inputs rather than brainstorming:

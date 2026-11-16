@@ -1,0 +1,367 @@
+{
+  "_readme": "Topic queue for the automated 4aNurse blog writer (see BLOG-AUTOMATION.md). Items run in LIST ORDER: the first item whose window is open (after <= today <= before) and that has not been published yet is next. Items whose `before` date passes unpublished are skipped, never written late. `focus` lists the product facets (type / occasion / recipient values from src/data/tag-rules.json) the writer should draw its picks from. Set `status` to 'done' with the post file name after publishing; the bot does this itself.",
+  "_pace": "Minimum days between published posts, by date. Holiday crunch runs twice a week, the rest of the year weekly.",
+  "pace": [
+    {
+      "until": "2026-12-21",
+      "minDays": 3
+    },
+    {
+      "until": "2099-12-31",
+      "minDays": 6
+    }
+  ],
+  "lowWater": 4,
+  "_reviewFirst": "The first N automated posts are opened as GitHub pull requests for Matt to approve instead of publishing directly.",
+  "reviewFirst": 3,
+  "items": [
+    {
+      "id": "xmas-2026-pillar",
+      "title": "Christmas Gifts for Nurses 2026: Practical Picks They Will Use on Shift",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-20",
+      "focus": {
+        "occasion": [
+          "christmas"
+        ],
+        "type": [
+          "drinkware",
+          "badge-reels",
+          "jewelry",
+          "self-care",
+          "stethoscopes"
+        ]
+      },
+      "angle": "The main 2026 Christmas guide. Organize by who is buying (partner, family, coworker, patient family) and by budget band, not as a product dump. Link the strongest gift pages and the /nurse-christmas-gifts/ hub."
+    },
+    {
+      "id": "xmas-2026-secret-santa",
+      "title": "Secret Santa Gifts for Nurses Under $25 (2026 Edition)",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-18",
+      "focus": {
+        "type": [
+          "badge-reels",
+          "stationery",
+          "drinkware",
+          "self-care",
+          "games-media"
+        ]
+      },
+      "angle": "Unit gift exchange and white elephant rules of thumb, what lands with a coworker you barely know, funny versus useful. Only products under 25 dollars. Link /nurse-gifts-under-25/."
+    },
+    {
+      "id": "xmas-2026-working-christmas",
+      "title": "Gifts for Nurses Working on Christmas Day 2026: Tumblers, Snacks and Small Comforts",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-23",
+      "focus": {
+        "type": [
+          "drinkware",
+          "self-care",
+          "bags"
+        ]
+      },
+      "angle": "For the person whose nurse is missing Christmas morning. Night shift and holiday shift reality, what helps a 12 hour holiday shift, how to celebrate on a different day. Warm, not saccharine."
+    },
+    {
+      "id": "xmas-2026-students",
+      "title": "Christmas Gifts for Nursing Students 2026: Clipboards, Reference Cards and Study Help",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-20",
+      "focus": {
+        "type": [
+          "clipboards",
+          "reference-cards",
+          "study-guides",
+          "stethoscopes"
+        ],
+        "recipient": [
+          "student"
+        ]
+      },
+      "angle": "Winter break gifts for students heading into next semester's clinicals. What actually helps in clinicals and NCLEX prep versus clutter."
+    },
+    {
+      "id": "xmas-2026-np",
+      "title": "Christmas Gifts for Nurse Practitioners 2026: Stethoscopes, Jewelry and Desk Gifts",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-20",
+      "focus": {
+        "recipient": [
+          "np"
+        ],
+        "type": [
+          "stethoscopes",
+          "jewelry",
+          "home-decor",
+          "drinkware"
+        ]
+      },
+      "angle": "NPs are a high budget, zero coverage audience. Clinic and telehealth NPs, gifts that respect the role."
+    },
+    {
+      "id": "xmas-2026-stethoscope",
+      "title": "Is a Stethoscope a Good Christmas Gift for a Nurse? A 2026 Buying Guide",
+      "category": "Buying Guide",
+      "after": "2026-11-16",
+      "before": "2026-12-20",
+      "focus": {
+        "type": [
+          "stethoscopes"
+        ]
+      },
+      "angle": "Answer the question honestly (yes for students and new grads, ask first for experienced nurses). Explain Classic versus Cardiology lines in plain gift buyer terms without clinical performance claims, engraving, colors. Link /best-stethoscope-for-nurses/ and /gifts/stethoscopes/."
+    },
+    {
+      "id": "xmas-2026-unit-gifts",
+      "title": "Christmas Gifts for the Whole Nursing Unit 2026: Badge Reels, Stickers and Bulk Ideas",
+      "category": "Holiday",
+      "after": "2026-11-16",
+      "before": "2026-12-18",
+      "focus": {
+        "type": [
+          "badge-reels",
+          "stationery",
+          "self-care"
+        ]
+      },
+      "angle": "For charge nurses, managers, and families thanking a whole unit. Per head budgeting, night shift inclusion, food safety and hospital gift policy basics (keep it general)."
+    },
+    {
+      "id": "xmas-2026-last-minute",
+      "title": "Last Minute Christmas Gifts for Nurses 2026 That Still Feel Thoughtful",
+      "category": "Holiday",
+      "after": "2026-12-05",
+      "before": "2026-12-21",
+      "focus": {
+        "occasion": [
+          "christmas"
+        ],
+        "type": [
+          "badge-reels",
+          "drinkware",
+          "jewelry",
+          "games-media"
+        ]
+      },
+      "angle": "Never promise delivery dates; tell readers to check the delivery estimate on the listing. Include ideas that do not depend on shipping (a written note, covering a shift, a coffee run)."
+    },
+    {
+      "id": "ny-2027-new-grad",
+      "title": "Gifts for New Grad Nurses Starting Their First Job in 2027",
+      "category": "Gift Guide",
+      "after": "2026-12-26",
+      "before": "2027-03-15",
+      "focus": {
+        "recipient": [
+          "student"
+        ],
+        "type": [
+          "badge-reels",
+          "clipboards",
+          "stethoscopes",
+          "drinkware",
+          "bags"
+        ]
+      },
+      "angle": "December graduates start orientation in January. First job survival kit framing."
+    },
+    {
+      "id": "best-2027-pillar",
+      "title": "The Best Gifts for Nurses in 2027",
+      "category": "Gift Guide",
+      "after": "2026-12-28",
+      "before": "2027-12-31",
+      "focus": {
+        "type": [
+          "stethoscopes",
+          "drinkware",
+          "jewelry",
+          "badge-reels",
+          "bags",
+          "self-care",
+          "medical-tools"
+        ]
+      },
+      "angle": "The evergreen 2027 pillar. One standout per category with who it suits. Write the description so it names stethoscopes, tumblers and jewelry (the product block reads it). Link every main category page."
+    },
+    {
+      "id": "val-2027",
+      "title": "Valentine's Day Gifts for Nurses 2027: Jewelry and Keepsakes",
+      "category": "Gift Guide",
+      "after": "2027-01-05",
+      "before": "2027-02-10",
+      "focus": {
+        "type": [
+          "jewelry",
+          "home-decor",
+          "drinkware"
+        ]
+      },
+      "angle": "For partners of nurses. Jewelry that works with hospital dress codes, keepsakes, a date planned around their schedule."
+    },
+    {
+      "id": "best-2027-stethoscope",
+      "title": "Best Stethoscope Gifts for Nurses in 2027",
+      "category": "Buying Guide",
+      "after": "2027-01-10",
+      "before": "2027-12-31",
+      "focus": {
+        "type": [
+          "stethoscopes"
+        ]
+      },
+      "angle": "Year round stethoscope gift guide by budget and by who it is for (student, new grad, pediatric, NP). Gift framing only, no clinical performance claims."
+    },
+    {
+      "id": "nw-2027-pillar",
+      "title": "Nurses Week 2027 Gift Ideas",
+      "category": "Nurses Week",
+      "after": "2027-02-01",
+      "before": "2027-05-08",
+      "focus": {
+        "occasion": [
+          "nurses-week"
+        ],
+        "type": [
+          "drinkware",
+          "badge-reels",
+          "self-care",
+          "bags"
+        ]
+      },
+      "angle": "The main Nurses Week 2027 guide (National Nurses Week runs May 6 to 12 every year). Gifts for one nurse versus a team, budget bands. Link /nurses-week-gifts/."
+    },
+    {
+      "id": "grad-2027-pillar",
+      "title": "Nurse Graduation Gifts 2027: Pinning Ceremony and NCLEX Picks",
+      "category": "Graduation",
+      "after": "2027-02-15",
+      "before": "2027-06-15",
+      "focus": {
+        "occasion": [
+          "graduation"
+        ],
+        "type": [
+          "jewelry",
+          "study-guides",
+          "stethoscopes",
+          "bags"
+        ]
+      },
+      "angle": "Spring 2027 graduation season. Pinning ceremony keepsakes versus practical first job gifts versus NCLEX prep. Link /nurse-graduation-gifts/."
+    },
+    {
+      "id": "nw-2027-unit",
+      "title": "Nurses Week 2027 Gifts for the Whole Unit: Badge Reels, Tumblers and Treats",
+      "category": "Nurses Week",
+      "after": "2027-02-15",
+      "before": "2027-05-08",
+      "focus": {
+        "type": [
+          "badge-reels",
+          "drinkware",
+          "stationery",
+          "self-care"
+        ]
+      },
+      "angle": "Bulk and per head ideas for managers and committees planning Nurses Week. Include night and weekend shift so nobody is left out."
+    },
+    {
+      "id": "nw-2027-managers",
+      "title": "Nurses Week 2027 Gifts From Nurse Managers to Their Staff",
+      "category": "Nurses Week",
+      "after": "2027-03-01",
+      "before": "2027-05-08",
+      "focus": {
+        "recipient": [
+          "leader"
+        ],
+        "type": [
+          "drinkware",
+          "self-care",
+          "bags",
+          "home-decor"
+        ]
+      },
+      "angle": "Leader perspective: recognition that feels personal, budget realities, pairing a gift with something that costs nothing (schedule wins, a written note)."
+    },
+    {
+      "id": "grad-2027-pin",
+      "title": "Nursing Pin and Lapel Pin Gifts for the 2027 Pinning Ceremony",
+      "category": "Graduation",
+      "after": "2027-03-01",
+      "before": "2027-06-01",
+      "focus": {
+        "type": [
+          "jewelry"
+        ],
+        "occasion": [
+          "graduation"
+        ]
+      },
+      "angle": "What a pinning ceremony is (for families), RN versus BSN pins, keepsake jewelry."
+    },
+    {
+      "id": "md-2027",
+      "title": "Mother's Day Gifts for Nurse Moms 2027",
+      "category": "Gift Guide",
+      "after": "2027-03-15",
+      "before": "2027-05-07",
+      "focus": {
+        "occasion": [
+          "mothers-day"
+        ],
+        "recipient": [
+          "nurse-mom"
+        ],
+        "type": [
+          "jewelry",
+          "self-care",
+          "home-decor"
+        ]
+      },
+      "angle": "Nurse moms juggling shifts and family. Mother's Day falls in Nurses Week season, so a gift can honor both."
+    },
+    {
+      "id": "ret-2027",
+      "title": "Nurse Retirement Gifts 2027: Keepsakes, Jewelry and Figurines",
+      "category": "Gift Guide",
+      "after": "2027-03-15",
+      "before": "2027-12-31",
+      "focus": {
+        "occasion": [
+          "retirement"
+        ],
+        "type": [
+          "home-decor",
+          "jewelry"
+        ]
+      },
+      "angle": "High emotion, higher budget. Honoring a whole career, group gifts from a unit."
+    },
+    {
+      "id": "er-2027",
+      "title": "Best Gifts for ER Nurses in 2027: Trauma Shears, Penlights and Dark Humor",
+      "category": "Gift Guide",
+      "after": "2027-04-01",
+      "before": "2027-12-31",
+      "focus": {
+        "recipient": [
+          "er"
+        ],
+        "type": [
+          "medical-tools",
+          "badge-reels"
+        ]
+      },
+      "angle": "ER culture, practical tools that walk off, humor that lands with ER staff. Link /gifts-for-er-nurses/."
+    }
+  ]
+}
